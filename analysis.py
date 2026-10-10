@@ -144,6 +144,133 @@ def fake_volume_score(trades, tf15, book, quote_volume_24h):
     return min(score, 1.0), reasons
 
 
+def atr_pct(klines, period=14):
+    """Ortalama gerçek aralık (ATR), fiyatın yüzdesi olarak. Coinin ne kadar oynak olduğunu gösterir."""
+    closed = klines[:-1] if len(klines) > 1 else klines
+    if len(closed) < 2:
+        return None
+    trs = []
+    for prev, k in zip(closed, closed[1:]):
+        h, lo, pc = float(k[2]), float(k[3]), float(prev[4])
+        trs.append(max(h - lo, abs(h - pc), abs(lo - pc)))
+    last = float(closed[-1][4])
+    return mean(trs[-period:]) / last * 100 if last else None
+
+
+def recent_change_pct(klines, candles):
+    """Son `candles` mumdaki toplam değişim (içinde bulunulan mum dahil)."""
+    if len(klines) < candles + 1:
+        return 0.0
+    start = float(klines[-candles - 1][4])
+    return (float(klines[-1][4]) / start - 1) * 100 if start else 0.0
+
+
+def detect_spoof(prev_depth, depth, wall_mult=5.0, band_pct=2.0):
+    """Önceki turda görünen büyük emir duvarı, fiyat oraya gelmeden kaybolduysa True."""
+    if not prev_depth or not depth:
+        return False
+    for side in ("bids", "asks"):
+        prev = [(float(p), float(q)) for p, q, *_ in prev_depth.get(side, [])]
+        now = {float(p): float(q) for p, q, *_ in depth.get(side, [])}
+        if len(prev) < 5 or not now:
+            continue
+        best = prev[0][0]
+        sizes = sorted(p * q for p, q in prev)
+        median = sizes[len(sizes) // 2]
+        cur_best = max(now) if side == "bids" else min(now)
+        for p, q in prev:
+            if abs(p / best - 1) * 100 > band_pct or p * q < wall_mult * median:
+                continue
+            traded_through = cur_best < p if side == "bids" else cur_best > p
+            if not traded_through and now.get(p, 0) * p < 0.2 * p * q:
+                return True
+    return False
+
+
+def slippage_pct(depth, quote_amount):
+    """`quote_amount` TRY'lik piyasa alımının en iyi satış fiyatına göre ne kadar pahalıya geleceği."""
+    asks = [(float(p), float(q)) for p, q, *_ in (depth or {}).get("asks", [])]
+    if not asks:
+        return 99.0
+    left, cost, qty = quote_amount, 0.0, 0.0
+    for p, q in asks:
+        take = min(left, p * q)
+        cost += take
+        qty += take / p
+        left -= take
+        if left <= 1e-9:
+            break
+    if left > 1e-9:
+        return 99.0  # defterde yeterli emir yok
+    return (cost / qty / asks[0][0] - 1) * 100
+
+
+def limit_price_for(depth, quote_amount, max_slippage_pct):
+    """Limit alım fiyatı: miktarı karşılayan en kötü fiyat, kayma sınırıyla kısıtlı."""
+    asks = [(float(p), float(q)) for p, q, *_ in (depth or {}).get("asks", [])]
+    if not asks:
+        return None
+    cap = asks[0][0] * (1 + max_slippage_pct / 100)
+    left = quote_amount
+    for p, q in asks:
+        left -= p * q
+        if left <= 0:
+            return min(p, cap)
+    return cap
+
+
+@dataclass
+class Regime:
+    ok: bool
+    reason: str
+
+
+def btc_regime(k4h, k1d, k1h, max_drop_1h_pct):
+    """(1) Bitcoin düşüş eğilimindeyse yeni alım yapılmaz."""
+    m4, md = tf_metrics(k4h), tf_metrics(k1d)
+    drop = recent_change_pct(k1h, 1)
+    if m4 and md and not m4.trend_up and not md.trend_up:
+        return Regime(False, "BTC 4s ve günlükte ortalamanın altında")
+    if drop <= -max_drop_1h_pct:
+        return Regime(False, f"BTC son 1 saatte %{drop:.1f}")
+    return Regime(True, "BTC uygun")
+
+
+def global_check(try_price, global_ticker, usdt_try, tr_rvol, global_rvol,
+                 max_premium_pct, local_rvol_ratio):
+    """(9) TRY fiyatı/hacmi global USDT paritesiyle tutarlı mı? (ok, açıklama, prim%)"""
+    if not global_ticker or not usdt_try:
+        return True, "globalde karşılığı yok", None
+    g = float(global_ticker.get("lastPrice", 0)) * usdt_try
+    if g <= 0:
+        return True, "global fiyat yok", None
+    premium = (try_price / g - 1) * 100
+    if abs(premium) > max_premium_pct:
+        return False, f"TRY fiyatı globalden %{premium:+.1f} farklı", premium
+    if tr_rvol >= 3 and global_rvol is not None and tr_rvol > local_rvol_ratio * max(global_rvol, 1.0):
+        return False, f"hacim sadece TR'de artıyor ({tr_rvol:.1f}x, global {global_rvol:.1f}x)", premium
+    return True, f"global prim %{premium:+.2f}", premium
+
+
+def resample(klines, minutes):
+    """Kısa mumlardan uzun mum üretir (geçmiş veri testi için)."""
+    ms = minutes * 60_000
+    out = {}
+    for k in klines:
+        key = int(k[0]) // ms * ms
+        o, h, lo, c, v, tb = (float(k[i]) for i in (1, 2, 3, 4, 5, 9))
+        if key not in out:
+            out[key] = [key, o, h, lo, c, v, key + ms - 1, float(k[7]), int(k[8]), tb, 0.0, 0]
+        else:
+            r = out[key]
+            r[2], r[3], r[4] = max(r[2], h), min(r[3], lo), c
+            r[5] += v
+            r[7] += float(k[7])
+            r[8] += int(k[8])
+            r[9] += tb
+    return [out[key] for key in sorted(out)]
+
+
 @dataclass
 class Signal:
     symbol: str
@@ -156,16 +283,27 @@ class Signal:
     quote_volume_24h: float
     reasons: list = field(default_factory=list)
     tf: dict = field(default_factory=dict)
+    atr_pct: float = 0.0       # 1 saatlik ATR yüzdesi
+    rvol: float = 1.0
+    change_5m_pct: float = 0.0  # son iki 5dk mumdaki değişim
+    change_1m_pct: float = 0.0  # içinde bulunulan 1dk mum
+    spoof: bool = False
+    listing_days: int = 999    # günlük mum sayısı (yeni listelenen coinler için)
 
 
-def evaluate(symbol, tfs, trades, depth, ticker):
-    """tfs: {"15m": klines, ...}. Puan -1 (güçlü satış) .. +1 (güçlü alım)."""
+def evaluate(symbol, tfs, trades, depth, ticker, prev_depth=None):
+    """tfs: {"15m": klines, ...}. Puan -1 (güçlü satış) .. +1 (güçlü alım).
+    trades/depth boş olabilir (geçmiş veri testinde)."""
     m = {tf: tf_metrics(k) for tf, k in tfs.items()}
     m = {tf: x for tf, x in m.items() if x}
-    book = book_metrics(depth)
+    book = book_metrics(depth) if depth else None
     flow = trade_metrics(trades)
     qv24 = float(ticker.get("quoteVolume", 0))
     fake, fake_reasons = fake_volume_score(trades, m.get("15m"), book, qv24)
+    spoof = detect_spoof(prev_depth, depth)
+    if spoof:
+        fake = min(1.0, fake + 0.1)
+        fake_reasons.append("emir defterinde kaybolan sahte emir duvarı")
 
     w_total = sum(TF_WEIGHTS.get(tf, 1) for tf in m) or 1
     momentum = sum(TF_WEIGHTS.get(tf, 1) * (1 if x.trend_up else -1) for tf, x in m.items()) / w_total
@@ -174,8 +312,9 @@ def evaluate(symbol, tfs, trades, depth, ticker):
     rvol = max((x.rvol for x in short), default=1.0)
     vol_score = clamp(math.log2(rvol) / 2) if rvol > 0 else -1
     taker = mean(x.taker_buy_ratio for x in short) if short else 0.5
-    flow_score = clamp((0.7 * taker + 0.3 * flow.buy_ratio_60s - 0.5) * 4)
-    imbalance = book.imbalance if book else 0.0
+    live_ratio = flow.buy_ratio_60s if trades else taker
+    flow_score = clamp((0.7 * taker + 0.3 * live_ratio - 0.5) * 4)
+    imbalance = book.imbalance if (book and not spoof) else 0.0
 
     score = (0.35 * momentum + 0.35 * flow_score
              + 0.2 * max(vol_score, 0) * (1 if flow_score >= 0 else -1) + 0.1 * imbalance)
@@ -197,7 +336,7 @@ def evaluate(symbol, tfs, trades, depth, ticker):
 
     reasons = [f"trend {sum(x.trend_up for x in m.values())}/{len(m)} dilimde yukarı",
                f"hacim {rvol:.1f}x", f"alıcı oranı %{taker * 100:.0f}",
-               f"son 60sn alıcı %{flow.buy_ratio_60s * 100:.0f}"] + fake_reasons
+               f"son 60sn alıcı %{live_ratio * 100:.0f}"] + fake_reasons
     return Signal(
         symbol=symbol, score=round(score, 3), label=label, fake_score=round(fake, 2),
         price=book.best_ask if book else float(ticker.get("lastPrice", 0)),
@@ -205,4 +344,9 @@ def evaluate(symbol, tfs, trades, depth, ticker):
         change_24h_pct=float(ticker.get("priceChangePercent", 0)),
         quote_volume_24h=qv24, reasons=reasons,
         tf={tf: round(x.change_pct, 2) for tf, x in m.items()},
+        atr_pct=(atr_pct(tfs["1h"]) or 0.0) if "1h" in tfs else 0.0,
+        rvol=rvol,
+        change_5m_pct=recent_change_pct(tfs["5m"], 2) if "5m" in tfs else 0.0,
+        change_1m_pct=recent_change_pct(tfs["1m"], 1) if "1m" in tfs else 0.0,
+        spoof=spoof,
     )
