@@ -17,7 +17,21 @@ pip install -r requirements.txt
 cp .env.example .env        # Windows: copy .env.example .env
 ```
 
-## Kullanım
+## Windows'ta çift tıklayarak çalıştırma
+
+| Dosya | Ne yapar |
+|---|---|
+| `baslat.bat` | Ajanı sürekli çalıştırır. İlk açılışta gerekli paketi kurar ve `.env` dosyasını oluşturur. Ajan bir hatayla kapanırsa 30 saniye sonra yeniden başlatır. |
+| `tara.bat` | Sadece tarama yapar, işlem yapmaz. |
+| `gecmis_test.bat` | Son 90 günle geçmiş veri testi yapar. |
+| `rapor.bat` | Performans raporunu gösterir. |
+
+**Bilgisayar açılınca kendiliğinden başlasın:** `Win + R` tuşlarına basın, `shell:startup` yazıp Enter'a basın.
+Açılan klasöre `baslat.bat` dosyasının **kısayolunu** koyun (dosyaya sağ tıklayın, "Kısayol oluştur" deyin,
+kısayolu o klasöre taşıyın). Bilgisayarın uyku moduna geçmemesi için Ayarlar > Sistem > Güç bölümünden
+uyku süresini "Hiçbir zaman" yapın.
+
+## Kullanım (komut satırı)
 
 ```bash
 python agent.py --scan      # sadece tara ve raporla, işlem yapma
