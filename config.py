@@ -1,5 +1,6 @@
 """Ajan ayarları. Değerler .env dosyasından veya ortam değişkenlerinden okunur."""
 import os
+import dataclasses
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 
@@ -115,6 +116,23 @@ class Config:
     # (6) Borsada stop emri (sadece canlı mod)
     exchange_stop: bool = True
 
+    # Strateji: "momentum" (15dk sinyaller, hızlı) veya "swing" (4s/günlük trend, yavaş)
+    strategy: str = "momentum"
+    swing_rr: float = 2.5                  # kâr hedefi = stop mesafesi x bu oran
+    swing_min_stop_pct: float = 3.0
+    swing_max_stop_pct: float = 10.0       # dip bundan uzaksa işleme girilmez
+    swing_pullback_bars: int = 6           # geri çekilme kaç saatlik mum içinde aranır
+    swing_rsi_min: float = 40.0
+    swing_rsi_max: float = 65.0
+    swing_min_rvol: float = 0.8
+    swing_max_ext_pct: float = 8.0         # fiyat 4s ortalamadan en fazla bu kadar yukarıda olabilir
+    swing_trend_break_pct: float = 2.0     # 4s kapanış ortalamanın bu kadar altına inerse sat
+    swing_trail_atr_mult: float = 2.0
+    swing_trailing_start_r: float = 1.5
+    swing_max_hold_hours: float = 336.0    # 14 gün
+    swing_cooldown_hours: float = 24.0
+    swing_max_daily_buys: int = 2
+
     # (14) Telegram
     telegram_token: str = ""
     telegram_chat_id: str = ""
@@ -125,6 +143,17 @@ class Config:
     @property
     def live(self):
         return self.mode == "live"
+
+    def active(self):
+        """Seçili stratejiye göre geçerli ayarlar. Swing modunda ortak kurallar swing değerleriyle değişir."""
+        if self.strategy != "swing":
+            return self
+        return dataclasses.replace(
+            self, reward_risk=self.swing_rr, max_hold_hours=self.swing_max_hold_hours,
+            reentry_cooldown_hours=self.swing_cooldown_hours,
+            symbol_cooldown_hours=max(self.symbol_cooldown_hours, self.swing_cooldown_hours),
+            max_daily_buys=self.swing_max_daily_buys, trailing_start_r=self.swing_trailing_start_r,
+            partial_take_r=999.0, confirm_rounds=1, signal_exit_rounds=10**9)
 
     @property
     def blacklist_set(self):
@@ -163,6 +192,7 @@ class Config:
                 kwargs[name] = os.environ[env]
         cfg = cls(**kwargs)
         cfg.mode = cfg.mode.lower()
+        cfg.strategy = cfg.strategy.lower()
         cfg.validate()
         return cfg
 
@@ -174,6 +204,8 @@ class Config:
                 raise ValueError("Canlı mod için BINANCE_TR_API_KEY ve BINANCE_TR_API_SECRET gerekli")
             if self.confirm_live != "EVET":
                 raise ValueError("Canlı mod için .env içinde CONFIRM_LIVE=EVET yazmalısınız")
+        if self.strategy not in ("momentum", "swing"):
+            raise ValueError("STRATEGY 'momentum' veya 'swing' olmalı")
         if self.order_type not in ("limit", "market"):
             raise ValueError("ORDER_TYPE 'limit' veya 'market' olmalı")
         if not (0 < self.min_trade_try <= self.max_trade_try) or self.max_open_positions <= 0:

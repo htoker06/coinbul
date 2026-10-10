@@ -5,6 +5,7 @@ Kullanım:
     python backtest.py --days 180 --symbols BTC_TRY,ETH_TRY,AVAX_TRY
     python backtest.py --days 90 --top 20 --karsilastir   # farklı ayarları yan yana dener
     python backtest.py --days 180 --top 20 --karsilastir  # daha uzun dönemle
+    python backtest.py --days 180 --top 20 --karsilastir --strateji swing  # yavaş stratejiyi dene
 
 Nasıl çalışır:
   * 15 dakikalık mumlar indirilir (data/history/ altına kaydedilir), 30dk/1s/4s/günlük mumlar
@@ -27,10 +28,15 @@ from collections import defaultdict
 from analysis import btc_regime, evaluate, resample
 from config import Config
 from exchange import BinanceTR, market_symbol
-from risk import Risk, edge_ok, entry_plan, new_state
+from risk import Risk, edge_ok, entry_plan, new_state, swing_plan
+from strategy_swing import swing_setup
 
 TF_MINUTES = {"15m": 15, "30m": 30, "1h": 60, "4h": 240, "1d": 1440}
 STEP_MS = 15 * 60_000
+HOUR_MS = 3_600_000
+SWING_KEYS = ("swing_min_stop_pct", "swing_max_stop_pct", "swing_pullback_bars", "swing_rsi_min",
+              "swing_rsi_max", "swing_min_rvol", "swing_max_ext_pct", "swing_trend_break_pct",
+              "swing_trail_atr_mult")
 ENTRY_SLIPPAGE = 0.001
 
 
@@ -86,6 +92,7 @@ class Precomputed:
                              if not start_ms or k[0] + STEP_MS >= start_ms})
         self.signals = {}
         self._regime = {}
+        self._swing = {}
         for t in self.times:
             out = []
             for sym, s in self.series.items():
@@ -105,6 +112,13 @@ class Precomputed:
             out.sort(key=lambda x: x.score, reverse=True)
             self.signals[t] = out
 
+    def swing(self, cfg, sym, t):
+        key = (sym, t) + tuple(getattr(cfg, k) for k in SWING_KEYS)
+        if key not in self._swing:
+            s = self.series[sym]
+            self._swing[key] = swing_setup(cfg, s.window("1h", t), s.window("4h", t), s.window("1d", t))
+        return self._swing[key]
+
     def regime(self, t, max_drop):
         key = (t, max_drop)
         if key not in self._regime:
@@ -117,6 +131,8 @@ def run_backtest(cfg, history=None, btc=None, start_ms=None, end_ms=None, pre=No
     """history: {sembol: 15dk mumlar}. Döner: (özet, işlemler).
     pre: daha önce hesaplanmış Precomputed (karşılaştırmada hız için)."""
     pre = pre or Precomputed(history, btc)
+    cfg = cfg.active()
+    swing = cfg.strategy == "swing"
     series = pre.series
     state = new_state(cfg)
     risk = Risk(cfg, state)
@@ -185,25 +201,30 @@ def run_backtest(cfg, history=None, btc=None, start_ms=None, end_ms=None, pre=No
         risk.update_sell_streaks(signals)
         for sig in signals:
             pos = positions.get(sig.symbol)
-            if pos and risk.signal_exit(sig.symbol, sig.price < pos["entry"]):
+            if not pos:
+                continue
+            if swing and t % (4 * HOUR_MS) == 0 and pre.swing(cfg, sig.symbol, t).trend_broken:
+                close(sig.symbol, pos, sig.price, "4 saatlik trend bozuldu", t)
+            elif risk.signal_exit(sig.symbol, sig.price < pos["entry"]):
                 close(sig.symbol, pos, sig.price, f"sinyal döndü: {sig.label}", t)
         state["positions"] = {k: True for k in positions}
 
         # 3) Alımlar: bir sonraki mumun açılışından
         regime = pre.regime(t, cfg.btc_max_drop_1h_pct) if (pre.btc and cfg.btc_filter) else None
-        if not risk.global_block(now, False, regime):
+        if (not swing or t % HOUR_MS == 0) and not risk.global_block(now, False, regime):
             for sig in signals:
                 if len(positions) >= cfg.max_open_positions or risk.global_block(now, False, regime):
                     break
                 if sig.quote_volume_24h < cfg.min_quote_volume_try:
                     continue
-                if risk.symbol_block(sig, {}, now) or sig.listing_days < cfg.min_listing_days:
+                setup = pre.swing(cfg, sig.symbol, t) if swing else None
+                if risk.symbol_block(sig, {}, now, swing=setup) or sig.listing_days < cfg.min_listing_days:
                     continue
                 s = series[sig.symbol]
                 i = s.index_at(t)
                 if i + 1 >= len(s.tf["15m"]):
                     continue
-                plan = entry_plan(cfg, sig.atr_pct)
+                plan = swing_plan(cfg, setup) if swing else entry_plan(cfg, sig.atr_pct)
                 if not edge_ok(cfg, plan):
                     continue
                 if state["cash_try"] < plan["size_try"]:
@@ -280,6 +301,18 @@ VARIANTS = [
     ("komisyon yarıya inerse", lambda c: {"fee_rate": c.fee_rate / 2}),
 ]
 
+SWING_VARIANTS = [
+    ("momentum (karşılaştırma)", {"strategy": "momentum"}),
+    ("swing varsayılan", {"strategy": "swing"}),
+    ("swing hedef 2 kat", {"strategy": "swing", "swing_rr": 2.0}),
+    ("swing hedef 3.5 kat", {"strategy": "swing", "swing_rr": 3.5}),
+    ("swing stop en fazla %6", {"strategy": "swing", "swing_max_stop_pct": 6.0}),
+    ("swing RSI 35-60", {"strategy": "swing", "swing_rsi_min": 35.0, "swing_rsi_max": 60.0}),
+    ("swing BTC filtresi kapalı", {"strategy": "swing", "btc_filter": False}),
+    ("swing günde 1 alım", {"strategy": "swing", "swing_max_daily_buys": 1}),
+    ("swing komisyon yarıya", lambda c: {"strategy": "swing", "fee_rate": c.fee_rate / 2}),
+]
+
 
 def variant_config(cfg, overrides):
     return dataclasses.replace(cfg, **(overrides(cfg) if callable(overrides) else overrides))
@@ -311,9 +344,12 @@ def main():
     p.add_argument("--top", type=int, default=20, help="hacmi en yüksek kaç coin")
     p.add_argument("--symbols", default="", help="virgülle, örn. BTC_TRY,ETH_TRY")
     p.add_argument("--karsilastir", action="store_true", help="farklı ayarları yan yana dene")
+    p.add_argument("--strateji", choices=["momentum", "swing"], help=".env'deki STRATEGY yerine bunu kullan")
     args = p.parse_args()
 
     cfg = Config.from_env()
+    if args.strateji:
+        cfg = dataclasses.replace(cfg, strategy=args.strateji)
     client = BinanceTR(base_url=cfg.base_url, market_url=cfg.market_url)
     if args.symbols:
         symbols = [s.strip().upper() for s in args.symbols.split(",") if s.strip()]
@@ -337,7 +373,7 @@ def main():
         first = args.days * 2 // 3
         split_ms = start_ms + first * 86_400_000
         rows = []
-        for name, overrides in VARIANTS:
+        for name, overrides in (SWING_VARIANTS if cfg.strategy == "swing" else VARIANTS):
             v = variant_config(cfg, overrides)
             a, _ = run_backtest(v, start_ms=start_ms, end_ms=split_ms, pre=pre)
             b, _ = run_backtest(v, start_ms=split_ms, pre=pre)
@@ -352,7 +388,7 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(trades[0]) if trades else ["bos"])
         w.writeheader()
         w.writerows(trades)
-    print(f"\nGeçmiş veri testi ({args.days} gün, {len(history)} coin)")
+    print(f"\nGeçmiş veri testi ({args.days} gün, {len(history)} coin, strateji: {cfg.strategy})")
     for k, v in summary.items():
         print(f"  {k}: {v}")
     print(f"İşlemler: {out}")

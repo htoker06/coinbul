@@ -25,6 +25,7 @@ cp .env.example .env        # Windows: copy .env.example .env
 | `tara.bat` | Sadece tarama yapar, işlem yapmaz. |
 | `gecmis_test.bat` | Son 90 günle geçmiş veri testi yapar. |
 | `karsilastir.bat` | Farklı ayarları aynı geçmiş veride yan yana dener: ilk 60 günde seçer, son 30 günde sınar. |
+| `karsilastir_swing.bat` | Yavaş (swing) stratejinin ayarlarını 180 günle karşılaştırır; ilk satır karşılaştırma için mevcut stratejidir. |
 | `karsilastir_180.bat` | Aynısını 180 günle yapar: ilk 120 günde seçer, son 60 günde sınar. Daha uzun sürer ama daha güvenilirdir. |
 | `rapor.bat` | Performans raporunu gösterir. |
 
@@ -55,6 +56,18 @@ python report.py            # sanal işlemlerin performans raporu (--live: canl�
    `MAX_TRADE_TRY=300`, `MAX_OPEN_POSITIONS=2`.
 5. İlk canlı işlemleri Binance TR uygulamasından kontrol edin: miktar, fiyat ve **borsadaki stop emri**
    ajanın kaydıyla uyuşmalı.
+
+## İki strateji
+
+`.env` içindeki `STRATEGY` ayarıyla seçilir:
+
+- **`momentum`** (varsayılan): 15 dakikalık hacim, alıcı baskısı ve trend sinyalleriyle hızlı işlem.
+  Aşağıdaki "Ajan her turda ne yapar?" bölümü bu stratejiyi anlatır.
+- **`swing`**: Günlük ve 4 saatlik trend yukarıyken, fiyat saatlik ortalamaya geri çekilip yeşil bir
+  mumla döndüğünde alır. Stop geri çekilmenin dibinin altına, hedef stop mesafesinin `SWING_RR`
+  katına konur (%7–25). 4 saatlik trend bozulursa satar. Kademeli satış yoktur; satıştan sonra aynı coin
+  24 saat alınmaz, günde en fazla 2 alım yapılır. Sahte hacim, Bitcoin, pump, global karşılaştırma,
+  kayma, saat ve zarar sınırı kontrolleri iki stratejide de geçerlidir.
 
 ## Ajan her turda ne yapar?
 

@@ -19,7 +19,8 @@ from config import HERE, Config
 from exchange import BinanceGlobal, BinanceTR, ExchangeError, market_symbol
 from notifier import Notifier
 from report import format_summary, load, summarize
-from risk import Risk, edge_ok, entry_plan, new_state, round_trip_cost_pct, tr_now
+from risk import Risk, edge_ok, entry_plan, new_state, round_trip_cost_pct, swing_plan, tr_now
+from strategy_swing import swing_setup
 
 log = logging.getLogger("ajan")
 STOP_FILE = HERE / "STOP"
@@ -33,6 +34,7 @@ def now_iso():
 
 class Agent:
     def __init__(self, cfg, client=None, global_client=None, notifier=None):
+        cfg = cfg.active()
         self.cfg = cfg
         self.client = client or BinanceTR(cfg.api_key, cfg.api_secret, cfg.base_url, cfg.market_url)
         self.global_client = global_client or BinanceGlobal(cfg.global_url)
@@ -104,6 +106,8 @@ class Agent:
         # (7) yeni listelenen coin: günlük mum sayısı az
         if "1d" in tfs:
             sig.listing_days = len(tfs["1d"])
+        if self.cfg.strategy == "swing" and all(tf in tfs for tf in ("1h", "4h", "1d")):
+            sig.swing = swing_setup(self.cfg, tfs["1h"], tfs["4h"], tfs["1d"])
         return sig
 
     def scan(self):
@@ -183,7 +187,7 @@ class Agent:
     def try_buy(self, s, gdata, now):
         c = self.cfg
         info = self.symbols.get(s.symbol, {})
-        why = self.risk.symbol_block(s, info, now)
+        why = self.risk.symbol_block(s, info, now, swing=s.swing)
         if not why and s.listing_days < c.min_listing_days:
             why = f"yeni listelenmiş ({s.listing_days} gün)"
         if not why:
@@ -191,7 +195,7 @@ class Agent:
         if why:
             return why
         depth = self.depth_cache.get(s.symbol) or self.client.depth(s.symbol, 100)
-        plan = entry_plan(c, s.atr_pct)
+        plan = swing_plan(c, s.swing) if c.strategy == "swing" else entry_plan(c, s.atr_pct)
         if not edge_ok(c, plan):
             return (f"kâr hedefi (%{plan['tp_pct']}) komisyon ve kaymaya göre çok küçük "
                     f"(maliyet %{round_trip_cost_pct(c):.2f})")
@@ -220,7 +224,8 @@ class Agent:
         if not c.live:
             self.state["cash_try"] -= fill["try"]
         self._sync_exchange_stop(s.symbol, pos, force=True)
-        reason = f"{s.label}, puan {s.score}, stop %{plan['stop_pct']}, hedef %{plan['tp_pct']}"
+        what = "swing: trend + geri çekilme + dönüş" if c.strategy == "swing" else f"{s.label}, puan {s.score}"
+        reason = f"{what}, stop %{plan['stop_pct']}, hedef %{plan['tp_pct']}"
         self._journal(pozisyon_id=pos["id"], islem="AL", sembol=s.symbol, miktar=fill["qty"],
                       fiyat=entry, tutar_try=round(fill["try"], 2), kar_zarar_try="",
                       komisyon_try=round(fill["try"] * c.fee_rate, 4), sinyal=s.label, sebep=reason)
@@ -281,6 +286,8 @@ class Agent:
             return f"kâr al ({change:+.1f}%)"
         if (time.time() - pos["opened"]) / 3600 >= c.max_hold_hours:
             return f"süre doldu ({change:+.1f}%)"
+        if signal and signal.swing is not None and signal.swing.trend_broken:
+            return f"4 saatlik trend bozuldu ({change:+.1f}%)"
         if signal and self.risk.signal_exit(signal.symbol, bid < pos["entry"]):
             return f"sinyal döndü: {signal.label} ({change:+.1f}%)"
         return None
@@ -351,7 +358,7 @@ class Agent:
     # ------------------------------------------------------------- Telegram / rapor
     def status_text(self):
         st = self.state
-        lines = [f"Mod: {'CANLI' if self.cfg.live else 'SANAL'}"
+        lines = [f"Mod: {'CANLI' if self.cfg.live else 'SANAL'} | Strateji: {self.cfg.strategy}"
                  + (f" | DURDURULDU: {st['halted']}" if st.get("halted") else ""),
                  f"Bugün: {st['realized_today']:+.2f} TRY | Hafta: {st['realized_week']:+.2f} | "
                  f"Toplam: {st['realized_total']:+.2f}"]

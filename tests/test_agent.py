@@ -1,3 +1,4 @@
+import dataclasses
 import random
 import sys
 import tempfile
@@ -574,7 +575,6 @@ class BacktestTests(unittest.TestCase):
         self.assertAlmostEqual(summary["komisyon_oncesi_kar_try"],
                                summary["toplam_kar_zarar_try"] + summary["komisyon_ve_kayma_try"], places=1)
         # Karşılaştırma: aynı ön hesapla bütün ayarlar çalışır, eski ayarlar daha çok işlem yapar
-        import dataclasses
         pre = Precomputed({"X_TRY": candles})
         split = pre.times[len(pre.times) // 2]
         res = {name: run_backtest(variant_config(cfg, ov), end_ms=split, pre=pre)[0]
@@ -587,3 +587,92 @@ class BacktestTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --------------------------------------------------------------------------- swing stratejisi
+def swing_candles(days=60, seed=5, up=True):
+    """30 saatlik döngü: 24 saat trend, 4 saat geri çekilme, 2 saat güçlü dönüş (15dk mumlar)."""
+    r = random.Random(seed)
+    out, p, step = [], 100.0, 15 * 60_000
+    for i in range(days * 96):
+        h = (i // 4) % 30
+        drift = (0.0005 if up else -0.0005) if h < 24 else (-0.0025 if h < 28 else 0.003)
+        o = p
+        c = o * (1 + drift + r.uniform(-0.0005, 0.0005))
+        v = 10 * (1.5 if h >= 28 else 1)
+        out.append([i * step, o, max(o, c) * 1.001, min(o, c) * 0.999, c, v, (i + 1) * step - 1,
+                    v * c, 10, v * (0.7 if drift > 0 else 0.35), 0, 0])
+        p = c
+    return out
+
+
+class SwingTests(unittest.TestCase):
+    def cfg(self, **kw):
+        base = dict(strategy="swing", min_quote_volume_try=0, min_listing_days=1, btc_filter=False,
+                    max_24h_change_pct=1000)
+        base.update(kw)
+        return test_config(tempfile.mkdtemp(), **base)
+
+    def test_active_config_switches_rules(self):
+        c = self.cfg().active()
+        self.assertEqual(c.reward_risk, c.swing_rr)
+        self.assertEqual(c.max_daily_buys, c.swing_max_daily_buys)
+        self.assertEqual(c.reentry_cooldown_hours, 24.0)
+        self.assertGreater(c.partial_take_r, 100)  # kademeli satış kapalı
+        self.assertIs(test_config(tempfile.mkdtemp()).active().strategy, "momentum")
+        with self.assertRaises(ValueError):
+            Config(strategy="yok").validate()
+
+    def test_setup_found_in_uptrend_not_in_downtrend(self):
+        from strategy_swing import swing_setup
+        cfg = self.cfg().active()
+        for up, expect in ((True, True), (False, False)):
+            pre = Precomputed({"X_TRY": swing_candles(up=up)})
+            found = [pre.swing(cfg, "X_TRY", t) for t in pre.times if t % 3_600_000 == 0]
+            oks = [s for s in found if s.ok]
+            self.assertEqual(bool(oks), expect)
+            for s in oks:
+                self.assertGreaterEqual(s.stop_pct, cfg.swing_min_stop_pct)
+                self.assertLessEqual(s.stop_pct, cfg.swing_max_stop_pct)
+        self.assertFalse(swing_setup(cfg, [], [], []).ok)
+
+    def test_backtest_swing_trades_less_than_momentum(self):
+        cfg = self.cfg()
+        pre = Precomputed({"X_TRY": swing_candles()})
+        sw, trades = run_backtest(cfg, pre=pre)
+        mo, _ = run_backtest(dataclasses.replace(cfg, strategy="momentum"), pre=pre)
+        self.assertGreater(sw["islem_sayisi"], 0)
+        self.assertLess(sw["islem_sayisi"], mo["islem_sayisi"])
+        self.assertLessEqual(sw["gunluk_islem"], cfg.swing_max_daily_buys)
+        self.assertNotIn("sinyal döndü", sw["satis_sebepleri"])
+        down, _ = run_backtest(cfg, pre=Precomputed({"X_TRY": swing_candles(up=False)}))
+        self.assertEqual(down["islem_sayisi"], 0)
+
+    def test_agent_uses_swing_plan_and_exits_on_trend_break(self):
+        from strategy_swing import SwingSetup
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        with mock.patch("time.sleep", lambda s: None):
+            agent_mod.STOP_FILE = Path(tmp.name) / "STOP"
+            cfg = test_config(tmp.name, strategy="swing")
+            client = FakeClient()
+            ag = agent_mod.Agent(cfg, client=client, global_client=FakeGlobal(), notifier=FakeNotifier())
+            ag.load_symbols()
+            ok = SwingSetup(True, "test", stop_pct=4.0, trail_pct=3.0, entry_ref=100.06)
+            none = SwingSetup(False, "yok")
+            with mock.patch("agent.swing_setup", side_effect=lambda c, h, f, d: none):
+                ag.step()
+            self.assertEqual(ag.state["positions"], {})  # kurulum yoksa alım yok
+            with mock.patch("agent.swing_setup",
+                            side_effect=lambda c, h, f, d: ok if float(h[-1][4]) > 90 else none):
+                ag.step()
+            p = ag.state["positions"]["GOOD_TRY"]
+            self.assertEqual(p["stop_pct"], 4.0)
+            self.assertEqual(p["tp_pct"], 10.0)  # 4 x 2.5
+            self.assertEqual(list(ag.state["positions"]), ["GOOD_TRY"])
+            broken = SwingSetup(False, "trend", trend_broken=True)
+            with mock.patch("agent.swing_setup", side_effect=lambda c, h, f, d: broken):
+                ag.step()
+            self.assertEqual(ag.state["positions"], {})
+            rows = agent_mod.load(ag.journal_path)
+            self.assertIn("trend bozuldu", rows[-1]["sebep"])

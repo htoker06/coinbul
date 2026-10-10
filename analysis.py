@@ -289,6 +289,7 @@ class Signal:
     change_1m_pct: float = 0.0  # içinde bulunulan 1dk mum
     spoof: bool = False
     listing_days: int = 999    # günlük mum sayısı (yeni listelenen coinler için)
+    swing: object = None       # swing stratejisinde SwingSetup
 
 
 def evaluate(symbol, tfs, trades, depth, ticker, prev_depth=None):

@@ -30,6 +30,14 @@ def entry_plan(cfg, atr_pct):
     }
 
 
+def swing_plan(cfg, setup):
+    """Swing: stop dipten gelir, tutar yine işlem başı riske göre hesaplanır."""
+    stop = setup.stop_pct
+    size = min(max(cfg.risk_per_trade_try / (stop / 100), cfg.min_trade_try), cfg.max_trade_try)
+    return {"stop_pct": stop, "tp_pct": round(stop * cfg.reward_risk, 3),
+            "trail_pct": setup.trail_pct, "size_try": round(size, 2)}
+
+
 def round_trip_cost_pct(cfg):
     """Bir alım-satım turunun tahmini maliyeti (komisyon x2 + kayma), yüzde."""
     return 2 * cfg.fee_rate * 100 + cfg.est_slippage_pct
@@ -137,8 +145,9 @@ class Risk:
             return False
         return self.state["sell_streaks"].get(symbol, 0) >= self.cfg.signal_exit_rounds
 
-    def symbol_block(self, s, info, now):
-        """Bu coinin alınmaması için sebep. Engel yoksa boş metin."""
+    def symbol_block(self, s, info, now, swing=None):
+        """Bu coinin alınmaması için sebep. Engel yoksa boş metin.
+        swing: swing stratejisinde coinin SwingSetup'ı (puan/teyit yerine bu kullanılır)."""
         c, st = self.cfg, self.state
         base = (info or {}).get("base") or s.symbol.split("_")[0]
         if s.symbol in st["positions"]:
@@ -149,15 +158,22 @@ class Risk:
             return "kara listede"
         if st["cooldowns"].get(s.symbol, 0) > now:
             return "yakın zamanda zarar ettirdi, bekleme süresinde"
-        if s.score < c.buy_score:
+        if c.strategy == "swing":
+            if not swing or not swing.ok:
+                return f"swing kurulumu yok: {swing.reason if swing else 'veri yok'}"
+            if s.price > swing.entry_ref * 1.01:
+                return "fiyat dönüş mumundan çok uzaklaştı"
+            if s.label == "ŞÜPHELİ HACİM" or s.fake_score > c.max_fake_score:
+                return "sahte hacim"
+        elif s.score < c.buy_score:
             return "puan düşük"
-        if s.label in ("ŞÜPHELİ HACİM", "SATIŞ BASKISI") or s.fake_score > c.max_fake_score:
+        elif s.label in ("ŞÜPHELİ HACİM", "SATIŞ BASKISI") or s.fake_score > c.max_fake_score:
             return "sahte hacim / satış baskısı"
         if s.spread_pct > c.max_spread_pct:
             return "makas geniş"
         if s.change_24h_pct > c.max_24h_change_pct:
             return "24 saatte çok yükselmiş"
-        if st["streaks"].get(s.symbol, 0) < c.confirm_rounds:
+        if c.strategy != "swing" and st["streaks"].get(s.symbol, 0) < c.confirm_rounds:
             return f"sinyal teyidi bekleniyor ({st['streaks'].get(s.symbol, 0)}/{c.confirm_rounds})"
         return ""
 
