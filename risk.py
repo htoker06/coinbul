@@ -30,11 +30,22 @@ def entry_plan(cfg, atr_pct):
     }
 
 
+def round_trip_cost_pct(cfg):
+    """Bir alım-satım turunun tahmini maliyeti (komisyon x2 + kayma), yüzde."""
+    return 2 * cfg.fee_rate * 100 + cfg.est_slippage_pct
+
+
+def edge_ok(cfg, plan):
+    """(Komisyon kontrolü) Kâr hedefi maliyetin en az MIN_EDGE_MULT katı mı?"""
+    return plan["tp_pct"] >= cfg.min_edge_mult * round_trip_cost_pct(cfg)
+
+
 def new_state(cfg):
     return {"cash_try": cfg.paper_start_try, "positions": {},
             "day": "", "realized_today": 0.0, "week": "", "realized_week": 0.0, "realized_total": 0.0,
             "consecutive_losses": 0, "pause_until": 0, "cooldowns": {}, "streaks": {},
-            "pump_watch": {}, "halted": "", "last_report_day": ""}
+            "pump_watch": {}, "halted": "", "last_report_day": "",
+            "buys_today": 0, "sell_streaks": {}}
 
 
 class Risk:
@@ -49,7 +60,7 @@ class Risk:
         day = t.date().isoformat()
         week = "%d-W%02d" % t.isocalendar()[:2]
         if self.state["day"] != day:
-            self.state["day"], self.state["realized_today"] = day, 0.0
+            self.state["day"], self.state["realized_today"], self.state["buys_today"] = day, 0.0, 0
         if self.state["week"] != week:
             self.state["week"], self.state["realized_week"] = week, 0.0
 
@@ -61,9 +72,13 @@ class Risk:
         st["realized_total"] += pnl
         if not final:
             return
+        wait = self.cfg.reentry_cooldown_hours
+        if pnl < 0:
+            wait = max(wait, self.cfg.symbol_cooldown_hours)
+        if wait > 0:
+            st["cooldowns"][symbol] = max(st["cooldowns"].get(symbol, 0), now + wait * 3600)
         if pnl < 0:
             st["consecutive_losses"] += 1
-            st["cooldowns"][symbol] = now + self.cfg.symbol_cooldown_hours * 3600
             if st["consecutive_losses"] >= self.cfg.max_consecutive_losses:
                 st["pause_until"] = now + self.cfg.loss_pause_minutes * 60
                 st["consecutive_losses"] = 0
@@ -89,7 +104,12 @@ class Risk:
             return regime.reason
         if len(st["positions"]) >= c.max_open_positions:
             return "en fazla pozisyon sayısında"
+        if st["buys_today"] >= c.max_daily_buys:
+            return f"günlük alım sınırı ({c.max_daily_buys})"
         return ""
+
+    def record_buy(self):
+        self.state["buys_today"] += 1
 
     def update_streaks(self, signals):
         """(11) Her coinin alım sinyalinin kaç tur üst üste sürdüğünü sayar."""
@@ -100,6 +120,22 @@ class Risk:
                 del streaks[sym]
         for sym in good:
             streaks[sym] = streaks.get(sym, 0) + 1
+
+    def update_sell_streaks(self, signals):
+        """Her coinin satış sinyalinin kaç tur üst üste sürdüğünü sayar."""
+        streaks = self.state["sell_streaks"]
+        bad = {s.symbol for s in signals if s.label in ("SATIŞ BASKISI", "ŞÜPHELİ HACİM")}
+        for sym in list(streaks):
+            if sym not in bad:
+                del streaks[sym]
+        for sym in bad:
+            streaks[sym] = streaks.get(sym, 0) + 1
+
+    def signal_exit(self, symbol, in_loss):
+        """'Sinyal döndü' satışı yapılmalı mı?"""
+        if self.cfg.signal_exit_only_loss and not in_loss:
+            return False
+        return self.state["sell_streaks"].get(symbol, 0) >= self.cfg.signal_exit_rounds
 
     def symbol_block(self, s, info, now):
         """Bu coinin alınmaması için sebep. Engel yoksa boş metin."""

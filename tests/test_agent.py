@@ -10,12 +10,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import agent as agent_mod  # noqa: E402
 import analysis as an  # noqa: E402
-from backtest import run_backtest  # noqa: E402
+from backtest import VARIANTS, Precomputed, run_backtest  # noqa: E402
 from broker import LiveBroker, floor_step, round_tick  # noqa: E402
 from config import Config  # noqa: E402
 from exchange import SIDE_BUY, sign  # noqa: E402
 from report import summarize  # noqa: E402
-from risk import Risk, entry_plan, in_window, new_state  # noqa: E402
+from risk import Risk, edge_ok, entry_plan, in_window, new_state  # noqa: E402
 
 
 def make_klines(n=60, start=100.0, drift=0.0, vol=10.0, last_vol=None, taker=0.5, rng=0.01, t0=0, step=60_000):
@@ -243,6 +243,31 @@ class RiskTests(unittest.TestCase):
         r.update_streaks([sig("AVAX_TRY")])
         self.assertEqual(r.symbol_block(sig("AVAX_TRY"), {}, 0), "")
 
+    def test_reentry_cooldown_after_profit_and_daily_buy_limit(self):
+        self.risk.record_close("A_TRY", +5, 1000)
+        self.assertGreater(self.risk.state["cooldowns"]["A_TRY"], 1000 + 5 * 3600)
+        self.assertEqual(self.risk.state["consecutive_losses"], 0)
+        for _ in range(self.cfg.max_daily_buys):
+            self.risk.record_buy()
+        self.assertIn("günlük alım sınırı", self.risk.global_block(time.time()))
+        self.risk.state["day"] = "eski"
+        self.risk.roll_periods(time.time())
+        self.assertEqual(self.risk.global_block(time.time()), "")
+
+    def test_signal_exit_only_in_loss_and_after_rounds(self):
+        bad = an.Signal("A_TRY", -0.5, "SATIŞ BASKISI", 0, 1.0, 0.1, 0, 1e8)
+        self.risk.update_sell_streaks([bad])
+        self.assertFalse(self.risk.signal_exit("A_TRY", in_loss=True))   # 1 tur yetmez
+        self.risk.update_sell_streaks([bad])
+        self.assertTrue(self.risk.signal_exit("A_TRY", in_loss=True))
+        self.assertFalse(self.risk.signal_exit("A_TRY", in_loss=False))  # kârdayken satmaz
+        self.risk.update_sell_streaks([])
+        self.assertFalse(self.risk.signal_exit("A_TRY", in_loss=True))   # seri bozuldu
+
+    def test_edge_check(self):
+        self.assertTrue(edge_ok(self.cfg, {"tp_pct": 3.0}))
+        self.assertFalse(edge_ok(self.cfg, {"tp_pct": 1.0}))  # maliyet %0.3 x 5 = %1.5
+
     def test_pump_waits_for_pullback_then_rebound(self):
         s = an.Signal("X_TRY", 0.8, "ALIM BAŞLADI", 0, 100.0, 0.1, 3, 1e8, change_5m_pct=7)
         self.assertIn("ani yükseliş", self.risk.pump_block(s, 0))
@@ -345,6 +370,20 @@ class AgentTests(unittest.TestCase):
         self.agent.manage_positions([])
         self.assertEqual(self.agent.state["positions"], {})
         self.assertGreater(self.agent.state["realized_today"], 0)
+
+    def test_sell_signal_exits_only_losing_position(self):
+        self.agent.step()
+        p = self.agent.state["positions"]["GOOD_TRY"]
+        p["partial_done"] = True
+        bad = an.Signal("GOOD_TRY", -0.5, "SATIŞ BASKISI", 0, 1.0, 0.1, 0, 1e8)
+        for _ in range(2):
+            self.agent.risk.update_sell_streaks([bad])
+        self.reprice("GOOD_TRY", p["entry"] * 1.005)   # kârda: satılmaz
+        self.agent.manage_positions([bad])
+        self.assertIn("GOOD_TRY", self.agent.state["positions"])
+        self.reprice("GOOD_TRY", p["entry"] * 0.995)   # zararda + 2 tur satış sinyali: satılır
+        self.agent.manage_positions([bad])
+        self.assertEqual(self.agent.state["positions"], {})
 
     def test_take_profit(self):
         self.agent.step()
@@ -517,7 +556,7 @@ class BacktestTests(unittest.TestCase):
         r = random.Random(3)
         candles, price = [], 100.0
         for i in range(3000):  # yükseliş ve düşüş dalgaları
-            drift = 0.003 if (i // 300) % 2 == 0 else -0.003
+            drift = 0.0012 if (i // 300) % 2 == 0 else -0.0012
             o = price
             c = o * (1 + drift + r.uniform(-0.002, 0.002))
             v = 10 * (4 if i % 300 < 20 else 1)
@@ -531,6 +570,17 @@ class BacktestTests(unittest.TestCase):
         buys = [t for t in trades if t["islem"] == "AL"]
         sells = [t for t in trades if t["islem"] == "SAT"]
         self.assertEqual(len(buys), len(sells))
+        self.assertGreater(summary["komisyon_ve_kayma_try"], 0)
+        self.assertAlmostEqual(summary["komisyon_oncesi_kar_try"],
+                               summary["toplam_kar_zarar_try"] + summary["komisyon_ve_kayma_try"], places=1)
+        # Karşılaştırma: aynı ön hesapla bütün ayarlar çalışır, eski ayarlar daha çok işlem yapar
+        import dataclasses
+        pre = Precomputed({"X_TRY": candles})
+        split = pre.times[len(pre.times) // 2]
+        res = {name: run_backtest(dataclasses.replace(cfg, **ov), end_ms=split, pre=pre)[0]
+               for name, ov in VARIANTS}
+        self.assertGreaterEqual(res["eski ayarlar"]["islem_sayisi"], res["yeni varsayılan"]["islem_sayisi"])
+        self.assertGreater(res["yeni varsayılan"]["islem_sayisi"], 0)
 
 
 if __name__ == "__main__":

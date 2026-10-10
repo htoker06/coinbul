@@ -24,6 +24,7 @@ cp .env.example .env        # Windows: copy .env.example .env
 | `baslat.bat` | Ajanı sürekli çalıştırır. İlk açılışta gerekli paketi kurar ve `.env` dosyasını oluşturur. Ajan bir hatayla kapanırsa 30 saniye sonra yeniden başlatır. |
 | `tara.bat` | Sadece tarama yapar, işlem yapmaz. |
 | `gecmis_test.bat` | Son 90 günle geçmiş veri testi yapar. |
+| `karsilastir.bat` | Farklı ayarları aynı geçmiş veride yan yana dener: ilk 60 günde seçer, son 30 günde sınar. |
 | `rapor.bat` | Performans raporunu gösterir. |
 
 **Bilgisayar açılınca kendiliğinden başlasın:** `Win + R` tuşlarına basın, `shell:startup` yazıp Enter'a basın.
@@ -38,6 +39,7 @@ python agent.py --scan      # sadece tara ve raporla, işlem yapma
 python agent.py --once      # tek tur
 python agent.py             # sürekli çalış
 python backtest.py --days 90 --top 20   # kuralları geçmiş veriyle dene
+python backtest.py --days 90 --top 20 --karsilastir   # farklı ayarları yan yana dene
 python report.py            # sanal işlemlerin performans raporu (--live: canlı)
 ```
 
@@ -86,7 +88,12 @@ python report.py            # sanal işlemlerin performans raporu (--live: canl�
 - **(16) Kademeli satış:** kâr stop mesafesine ulaşınca pozisyonun `PARTIAL_FRACTION` kadarı satılır,
   stop giriş fiyatının üstüne çekilir (kalan kısım zararla kapanmaz).
 - **İz süren stop:** kâr stop mesafesini geçince stop, en yüksek fiyatın ATR x `TRAILING_ATR_MULT` altına taşınır.
-- Süre dolması (`MAX_HOLD_HOURS`) veya sinyalin `SATIŞ BASKISI` / `ŞÜPHELİ HACİM`e dönmesi.
+- Süre dolması (`MAX_HOLD_HOURS`).
+- **Sinyal döndü:** coinin durumu `SATIŞ BASKISI` / `ŞÜPHELİ HACİM` olursa, ama sadece pozisyon
+  zarardayken ve sinyal `SIGNAL_EXIT_ROUNDS` tur sürdüyse. Kârdaki pozisyonları stoplar yönetir.
+- **Aşırı işlem önleme:** satılan coin (kârla da olsa) `REENTRY_COOLDOWN_HOURS` saat yeniden alınmaz,
+  günde en fazla `MAX_DAILY_BUYS` alım yapılır, kâr hedefi komisyonun `MIN_EDGE_MULT` katından
+  küçükse işleme girilmez.
 - **(6) Borsada stop:** Canlı modda stop emri Binance TR'ye de yazılır ve stop yükseldikçe güncellenir.
   Bilgisayar kapansa bile borsa stopu uygular (`EXCHANGE_STOP`).
 

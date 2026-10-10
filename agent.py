@@ -19,7 +19,7 @@ from config import HERE, Config
 from exchange import BinanceGlobal, BinanceTR, ExchangeError, market_symbol
 from notifier import Notifier
 from report import format_summary, load, summarize
-from risk import Risk, entry_plan, new_state, tr_now
+from risk import Risk, edge_ok, entry_plan, new_state, round_trip_cost_pct, tr_now
 
 log = logging.getLogger("ajan")
 STOP_FILE = HERE / "STOP"
@@ -192,6 +192,9 @@ class Agent:
             return why
         depth = self.depth_cache.get(s.symbol) or self.client.depth(s.symbol, 100)
         plan = entry_plan(c, s.atr_pct)
+        if not edge_ok(c, plan):
+            return (f"kâr hedefi (%{plan['tp_pct']}) komisyon ve kaymaya göre çok küçük "
+                    f"(maliyet %{round_trip_cost_pct(c):.2f})")
         size = plan["size_try"]
         if not c.live and self.state["cash_try"] < size:
             return "sanal bakiye yetersiz"
@@ -213,6 +216,7 @@ class Agent:
             "baseline": fill.get("baseline", 0.0),  # alımdan önce hesapta zaten olan miktar
         }
         self.state["positions"][s.symbol] = pos
+        self.risk.record_buy()
         if not c.live:
             self.state["cash_try"] -= fill["try"]
         self._sync_exchange_stop(s.symbol, pos, force=True)
@@ -277,7 +281,7 @@ class Agent:
             return f"kâr al ({change:+.1f}%)"
         if (time.time() - pos["opened"]) / 3600 >= c.max_hold_hours:
             return f"süre doldu ({change:+.1f}%)"
-        if signal and signal.label in ("SATIŞ BASKISI", "ŞÜPHELİ HACİM"):
+        if signal and self.risk.signal_exit(signal.symbol, bid < pos["entry"]):
             return f"sinyal döndü: {signal.label} ({change:+.1f}%)"
         return None
 
@@ -395,6 +399,7 @@ class Agent:
         regime = self.market_regime() if trade else None
         signals = self.scan()
         self.risk.update_streaks(signals)
+        self.risk.update_sell_streaks(signals)
         if not trade:
             return signals
         self.pump_reasons = {s.symbol: self.risk.pump_block(s, now) for s in signals}

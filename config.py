@@ -51,7 +51,7 @@ class Config:
     loop_seconds: int = 60
 
     # Alım kuralları
-    buy_score: float = 0.45
+    buy_score: float = 0.6
     max_fake_score: float = 0.4
     max_spread_pct: float = 0.4
     max_24h_change_pct: float = 25.0
@@ -96,7 +96,17 @@ class Config:
     # (3) Mola kuralları
     max_consecutive_losses: int = 3
     loss_pause_minutes: int = 120
-    symbol_cooldown_hours: float = 6.0
+    symbol_cooldown_hours: float = 6.0     # zararla satılan coini bu kadar süre alma
+    reentry_cooldown_hours: float = 6.0    # kârla da satılsa aynı coini bu kadar süre yeniden alma
+    max_daily_buys: int = 4                # günde en fazla alım sayısı
+
+    # "Sinyal döndü" satışı: sadece zarardayken ve satış sinyali bu kadar tur sürdüyse
+    signal_exit_rounds: int = 2
+    signal_exit_only_loss: bool = True
+
+    # Komisyon kontrolü: kâr hedefi, toplam maliyetin (2 x komisyon + tahmini kayma) bu katı olmalı
+    min_edge_mult: float = 5.0
+    est_slippage_pct: float = 0.1
 
     # (16) Kademeli satış
     partial_take_r: float = 1.0             # kâr stop mesafesine ulaşınca...
