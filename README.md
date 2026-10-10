@@ -44,7 +44,8 @@ Ajan sadece kendi aldığı miktarı satar. Hesabınızda daha önceden bulunan 
 Python 3.10 veya daha yeni bir sürüm gerekir.
 
 ```bash
-cd binance-tr-ajan
+git clone https://github.com/htoker06/coinbul.git
+cd coinbul
 pip install -r requirements.txt
 cp .env.example .env        # Windows: copy .env.example .env
 ```
