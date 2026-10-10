@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import agent as agent_mod  # noqa: E402
 import analysis as an  # noqa: E402
-from backtest import VARIANTS, Precomputed, run_backtest  # noqa: E402
+from backtest import VARIANTS, Precomputed, run_backtest, variant_config  # noqa: E402
 from broker import LiveBroker, floor_step, round_tick  # noqa: E402
 from config import Config  # noqa: E402
 from exchange import SIDE_BUY, sign  # noqa: E402
@@ -577,8 +577,10 @@ class BacktestTests(unittest.TestCase):
         import dataclasses
         pre = Precomputed({"X_TRY": candles})
         split = pre.times[len(pre.times) // 2]
-        res = {name: run_backtest(dataclasses.replace(cfg, **ov), end_ms=split, pre=pre)[0]
+        res = {name: run_backtest(variant_config(cfg, ov), end_ms=split, pre=pre)[0]
                for name, ov in VARIANTS}
+        self.assertLess(res["komisyon yarıya inerse"]["komisyon_ve_kayma_try"],
+                        res["yeni varsayılan"]["komisyon_ve_kayma_try"])
         self.assertGreaterEqual(res["eski ayarlar"]["islem_sayisi"], res["yeni varsayılan"]["islem_sayisi"])
         self.assertGreater(res["yeni varsayılan"]["islem_sayisi"], 0)
 

@@ -25,6 +25,7 @@ cp .env.example .env        # Windows: copy .env.example .env
 | `tara.bat` | Sadece tarama yapar, işlem yapmaz. |
 | `gecmis_test.bat` | Son 90 günle geçmiş veri testi yapar. |
 | `karsilastir.bat` | Farklı ayarları aynı geçmiş veride yan yana dener: ilk 60 günde seçer, son 30 günde sınar. |
+| `karsilastir_180.bat` | Aynısını 180 günle yapar: ilk 120 günde seçer, son 60 günde sınar. Daha uzun sürer ama daha güvenilirdir. |
 | `rapor.bat` | Performans raporunu gösterir. |
 
 **Bilgisayar açılınca kendiliğinden başlasın:** `Win + R` tuşlarına basın, `shell:startup` yazıp Enter'a basın.

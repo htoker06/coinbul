@@ -4,6 +4,7 @@ Kullanım:
     python backtest.py --days 90 --top 20
     python backtest.py --days 180 --symbols BTC_TRY,ETH_TRY,AVAX_TRY
     python backtest.py --days 90 --top 20 --karsilastir   # farklı ayarları yan yana dener
+    python backtest.py --days 180 --top 20 --karsilastir  # daha uzun dönemle
 
 Nasıl çalışır:
   * 15 dakikalık mumlar indirilir (data/history/ altına kaydedilir), 30dk/1s/4s/günlük mumlar
@@ -276,7 +277,12 @@ VARIANTS = [
     ("sinyal satışı kapalı", {"signal_exit_rounds": 10**9}),
     ("geniş stop (min %3)", {"min_stop_pct": 3.0}),
     ("günde 2 alım", {"max_daily_buys": 2}),
+    ("komisyon yarıya inerse", lambda c: {"fee_rate": c.fee_rate / 2}),
 ]
+
+
+def variant_config(cfg, overrides):
+    return dataclasses.replace(cfg, **(overrides(cfg) if callable(overrides) else overrides))
 
 
 def print_compare(rows, first_days, last_days):
@@ -296,6 +302,7 @@ def print_compare(rows, first_days, last_days):
     else:
         print("Hiçbir ayar iki dönemde de kâr faktörü 1.2'ye ulaşmadı. Bu kurallarla canlıya geçmeyin.")
     print("MALİYET = komisyon + kayma. KÂR F. 1'in altındaysa o ayar zarar ettirmiş demektir.")
+    print("'komisyon yarıya inerse' satırı bir ayar değil; komisyonunuz düşerse sonucun ne olacağını gösterir.")
 
 
 def main():
@@ -331,7 +338,7 @@ def main():
         split_ms = start_ms + first * 86_400_000
         rows = []
         for name, overrides in VARIANTS:
-            v = dataclasses.replace(cfg, **overrides)
+            v = variant_config(cfg, overrides)
             a, _ = run_backtest(v, start_ms=start_ms, end_ms=split_ms, pre=pre)
             b, _ = run_backtest(v, start_ms=split_ms, pre=pre)
             rows.append((name, a, b))
