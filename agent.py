@@ -109,12 +109,18 @@ class Agent:
     def scan(self):
         self.depth_cache = {}
         signals = []
-        for sym, t in self.universe():
+        rows = self.universe()
+        log.info("Tarama başladı: hacmi yeterli %d coin inceleniyor...", len(rows))
+        started = time.time()
+        for n, (sym, t) in enumerate(rows, 1):
             try:
                 signals.append(self.analyze(sym, t))
             except ExchangeError as exc:
                 log.warning("%s atlandı: %s", sym, exc)
+            if n % 10 == 0 and n < len(rows):
+                log.info("  %d/%d coin incelendi", n, len(rows))
             time.sleep(0.1)  # istek sınırına takılmamak için
+        log.info("Tarama bitti (%.0f saniye)", time.time() - started)
         signals.sort(key=lambda s: s.score, reverse=True)
         self._write_report(signals)
         return signals
