@@ -24,6 +24,13 @@ internet bağlantısı (yazı tipleri hariç) veya sunucu gerekmez.
   materyaller, dikkat çekme, adımlar, değerlendirme soruları, destekleme /
   zenginleştirme ve aile katılımı bulunur. Tek dokunuşla plana ya da bankaya eklenir.
 - **Etkinlik Bankam** — Kaydedilen etkinlikler; arama ve alan filtresi.
+- **Anekdot Kayıtları (EK-2)** — Programdaki anekdot kayıt formunun alanlarıyla
+  (çocuğun adı soyadı, tarih, gözlenen mekân, gözlenen durum, gözlenen beceriler,
+  gözlemcinin genel değerlendirmesi). Gözlenen beceriler o günün planından önerilir
+  ya da programdan seçilir; kayıtlar çocuğa göre süzülür.
+- **Word’e aktar** — Günlük plan (EK-6), aylık plan (EK-5) ve anekdot kayıtları
+  (tek kayıt ya da bir çocuğun tüm kayıtları) gerçek `.docx` dosyası olarak indirilir.
+  Dosya tarayıcıda, internet ya da ek program gerekmeden oluşturulur.
 - **Ayarlar** — Okul, öğretmen, yaş grubu; programdaki tüm çıktıları arayabileceğiniz program kütüphanesi; yedekleme (JSON).
 
 Veriler tarayıcının yerel deposunda (localStorage) tutulur. Başka cihaza

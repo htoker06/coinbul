@@ -292,6 +292,22 @@ table.ctrl{border-collapse:collapse;font-size:.82rem;min-width:760px;width:100%}
 .prog-item{border:1px solid var(--line);border-radius:10px;padding:8px 12px;border-left:4px solid var(--ac)}
 .prog-item summary{color:var(--ink);font-weight:600;margin:0}
 @media print{details:not([open]){display:none}.sheet-title{background:none}}
+/* ---------- Anekdot (EK-2) ---------- */
+:root{--ek2:#F4E3DC}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ek2:#3A2A26}}
+:root[data-theme="dark"]{--ek2:#3A2A26}
+.anek-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+.ek2{display:grid;border-top:1px solid var(--line)}
+.ek2-row{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr);border-bottom:1px solid var(--line)}
+.ek2-row>span{padding:10px 14px;font-weight:700;font-size:.88rem;border-right:1px solid var(--line);display:flex;align-items:center}
+.ek2-row input{border:0;border-radius:0;padding:10px 14px;background:transparent}
+.ek2-head{background:var(--ek2);padding:10px 14px;font-weight:800;font-size:.9rem;border-bottom:1px solid var(--line);display:grid;gap:2px}
+.ek2-head small{font-weight:600;color:var(--ink-2);font-size:.78rem}
+.ek2>textarea,.ek2-body textarea{border:0;border-bottom:1px solid var(--line);border-radius:0;min-height:110px;padding:12px 14px}
+.ek2-body{display:grid;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.ek2-body textarea{border:1.5px dashed var(--line);border-radius:10px;min-height:60px}
+.anek-card{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--c-ta);border-radius:var(--r);padding:12px 14px;display:grid;gap:8px}
+@media (max-width:900px){.anek-grid{grid-template-columns:minmax(0,1fr)}.nav button{font-size:.56rem}.ek2-row{grid-template-columns:minmax(0,1fr)}.ek2-row>span{border-right:0;padding-bottom:0}}
 </style>
 </head>
 <body>
@@ -1006,7 +1022,7 @@ function dayCodes(p){
 /* ---------- İlk kurulum ---------- */
 function seed(){
   const t=new Date(); const sy = t.getMonth()>=8 ? t.getFullYear() : t.getFullYear()-1;
-  S={v:2,settings:{ogretmen:'',okul:'',sinif:'Anasınıfı A',yas:'60-72 ay',baslangic:sy},year:yearTemplate(sy),monthly:{},daily:{},bank:[],gen:[],
+  S={v:2,settings:{ogretmen:'',okul:'',sinif:'Anasınıfı A',yas:'60-72 ay',baslangic:sy},year:yearTemplate(sy),monthly:{},daily:{},bank:[],gen:[],anek:[],cocuklar:[],
      ui:{view:'home',day:dkey(t),month:mkey(t),gen:{alan:'KARMA',tema:null,adet:6,yas:'60-72 ay',ortam:'Sınıf'}}};
   const d=new Date(t); while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()+1);
   S.ui.day=dkey(d); S.daily[S.ui.day]=newDay(S.ui.day,true);
@@ -1027,6 +1043,7 @@ const IC = {
   gen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>',
   bank:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l8-4 8 4-8 4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>',
   set:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
+  anek:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 12h6M9 16h4"/><circle cx="4" cy="8" r=".6" fill="currentColor"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>',
   f_basla:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 22h24"/><path d="M9 22a7 7 0 0114 0"/><path d="M16 8v3M7.5 12.5l2 2M24.5 12.5l-2 2M3 17h3M26 17h3"/><path d="M8 27h16"/></svg>',
@@ -1034,7 +1051,7 @@ const IC = {
   f_beslen:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10c-6-3-11 1-10 8 1 6 5 10 10 8 5 2 9-2 10-8 1-7-4-11-10-8z"/><path d="M16 10c0-3 1-5 4-6"/><path d="M16 10c-2-2-4-2-6-1"/></svg>',
   f_etk:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M16 4l3.5 7.2 7.9 1.1-5.7 5.6 1.4 7.8L16 22l-7.1 3.7 1.4-7.8-5.7-5.6 7.9-1.1z"/></svg>'
 };
-const NAV=[['home','Ana Sayfa','home'],['year','Yıllık Plan','year'],['month','Aylık Plan','month'],['day','Günlük Plan','day'],['gen','Etkinlik Üret','gen'],['bank','Etkinlik Bankam','bank'],['set','Ayarlar','set']];
+const NAV=[['home','Ana Sayfa','home'],['year','Yıllık Plan','year'],['month','Aylık Plan','month'],['day','Günlük Plan','day'],['gen','Etkinlik Üret','gen'],['bank','Etkinlik Bankam','bank'],['anek','Anekdot','anek'],['set','Ayarlar','set']];
 
 function renderNav(){
   $('#nav').innerHTML=NAV.map(([k,ad,ic])=>`<button data-go="${k}" ${S.ui.view===k?'aria-current="page"':''}>${IC[ic]}<span>${ad}</span></button>`).join('');
@@ -1160,7 +1177,7 @@ function vMonth(){
   const ta=(id,f,ph='')=>`<textarea id="${id}" data-bind="month.${f}" placeholder="${ph}">${esc(M[f])}</textarea>`;
   return `
   <div class="page-head"><div><span class="label">Aylık eğitim planı · ${esc(age)}</span><h1>${AYLAR[mm-1]} ${y}</h1></div>
-   <div class="toolbar"><label class="field" style="min-width:min(100%,280px)"><span>Ay</span><select id="msel">${opts}</select></label>${inFrame?'':`<button class="btn" data-do="print">${IC.print} Yazdır</button>`}<button class="btn" data-do="fillmonth">Tüm iş günlerini planla</button><button class="btn ghost" data-do="remonth">Seçimleri yeniden öner</button></div></div>
+   <div class="toolbar"><label class="field" style="min-width:min(100%,280px)"><span>Ay</span><select id="msel">${opts}</select></label>${inFrame?'':`<button class="btn" data-do="print">${IC.print} Yazdır</button>`}<button class="btn" data-do="word" data-kind="month">📄 Word’e aktar</button><button class="btn" data-do="fillmonth">Tüm iş günlerini planla</button><button class="btn ghost" data-do="remonth">Seçimleri yeniden öner</button></div></div>
   ${banner(th,`${AYLAR[mm-1]} ayı teması`,mo.baslik,mo.ozet,'h2')}
   <section class="weeks">${mo.weeks.map((w,i)=>{const t2=TEMA[w.tema]||TEMA.okul;const wk=weeks[i];return `<article class="week"><div class="week-top" style="background:${t2.c}"><div><span class="label" style="color:#fff;opacity:.85">${i+1}. hafta${wk?' · '+pdate(wk).getDate()+' '+AYLAR[pdate(wk).getMonth()].slice(0,3):''}</span><h4 style="color:#fff">${esc(w.baslik)}</h4></div><span class="em">${t2.em.slice(0,2).map(em).join('')}</span></div>
     <div class="week-body"><span class="small muted">Tema: ${esc(t2.ad)}</span><div class="chips">${t2.k.slice(0,3).map(k=>`<span class="chip">${esc(k.split('|')[1])}</span>`).join('')}</div>
@@ -1194,11 +1211,11 @@ function vDay(){
   const mats=[]; acts.forEach(a=>a.mat.forEach(m=>{if(!mats.find(x=>x[0]===m[0]))mats.push(m)}));
   const temaOpts=TEMA_KEYS.map(t=>`<option value="${t}" ${t===p.tema?'selected':''}>${esc(TEMA[t].ad)}</option>`).join('');
   const flowStep=(f,ad,ic,col)=>`<div class="flow-step"><div class="flow-ic" style="--fc:${col}">${IC[ic]}</div><div class="flow-body"><h3>${ad}</h3><textarea id="fl-${f}" data-bind="day.flow.${f}">${esc(p.flow[f])}</textarea></div></div>`;
-  const sorular=uniq([...acts.flatMap(a=>a.soru.slice(0,2)),'Bugün en çok hangi etkinlikten hoşlandın? Neden?','Zorlandığın bir bölüm oldu mu? O sırada nasıl hissettin?','Etkinlikler sırasında arkadaşlarınla nasıl iş birliği yaptın?']);
+  const sorular=daySorular(p);
   return `
   <div class="page-head"><div><span class="label">Günlük plan · ${esc(age)}</span><h1>${fmtLong(k)}</h1></div>
    <div class="toolbar"><button class="btn" data-do="dayshift" data-n="-1" aria-label="Önceki gün">‹</button><input type="date" id="dsel" value="${k}" style="width:auto"><button class="btn" data-do="dayshift" data-n="1" aria-label="Sonraki gün">›</button>
-   <button class="btn primary" data-do="autoday">✨ Otomatik oluştur</button>${inFrame?'':`<button class="btn" data-do="print">${IC.print} Yazdır</button>`}<button class="btn ghost danger" data-do="clearday">Temizle</button></div></div>
+   <button class="btn primary" data-do="autoday">✨ Otomatik oluştur</button><button class="btn" data-do="word" data-kind="day">📄 Word’e aktar</button>${inFrame?'':`<button class="btn" data-do="print">${IC.print} Yazdır</button>`}<button class="btn ghost danger" data-do="clearday">Temizle</button></div></div>
   ${banner(th,`${p.haftaBaslik||th.ad}`,th.ad,`Günün sorusu: ${th.soru}`,'h2')}
   <section class="sheet">
     <div class="sheet-title"><b>GÜNLÜK PLAN</b><span>${fmtLong(k)}</span></div>
@@ -1228,6 +1245,7 @@ function vDay(){
       <p class="small">Gün sonunda çocuklarla kısa bir değerlendirme çemberi oluşturulur. Çocukların gün içerisinde gerçekleştirdikleri etkinliklere ilişkin deneyimlerini, düşüncelerini ve duygularını paylaşmalarına fırsat verilir. Daha sonra aşağıdaki sorular sorularak günün değerlendirmesi yapılır.</p>
       <ul class="small" style="margin:0;padding-left:1.2em">${sorular.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
       <p class="small">Çocukların verdikleri yanıtlar ve gün boyunca yapılan gözlemler çocuk, program ve öğretmen açısından değerlendirilerek sonraki öğrenme-öğretme uygulamaları planlanır.</p>
+      <div class="toolbar no-print"><button class="btn sm" data-do="anekfor">📝 Bu gün için anekdot kaydı ekle</button>${(S.anek||[]).filter(r=>r.tarih===k).length?`<span class="small muted">Bu güne ait ${(S.anek||[]).filter(r=>r.tarih===k).length} anekdot kaydı var</span>`:''}</div>
       <textarea id="d-deg" data-bind="day.degEk" placeholder="Ek değerlendirme notu: anekdot kayıtları, portfolyoya eklenen ürünler…">${esc(p.degEk)}</textarea></div>
     <div class="sec"><div class="sec-title"><span class="num">8</span><h3>Aile ve Toplum Katılımı</h3></div>
       <dl class="kv"><dt>Aile Katılımı</dt><dd>${uniq(acts.map(a=>a.aile)).map(x=>`<p class="small">🏠 ${esc(x)}</p>`).join('')}<textarea id="d-aile" data-bind="day.aileEk" placeholder="Ek aile katılımı önerisi…">${esc(p.aileEk)}</textarea></dd>
@@ -1300,9 +1318,242 @@ function vSet(){
     <h2>Yedekleme</h2>
     <p class="muted small">Planlarınız bu tarayıcıda saklanır. Başka cihaza taşımak ya da yedeklemek için verileri kopyalayın; geri yüklemek için kutuya yapıştırıp "Geri yükle"ye dokunun.</p>
     <textarea id="s-json" style="min-height:120px;font-family:ui-monospace,monospace;font-size:.78rem" placeholder="Yedek verisi burada görünür…"></textarea>
-    <div class="toolbar"><button class="btn" data-do="exp">Verileri göster ve kopyala</button>${inFrame?'':'<button class="btn" data-do="dl">Dosya olarak indir</button>'}<label class="btn" style="cursor:pointer">Dosyadan yükle<input type="file" id="s-file" accept="application/json" hidden></label><button class="btn primary" data-do="imp">Geri yükle</button><button class="btn ghost danger" data-do="reset">Her şeyi sıfırla</button></div>
+    <div class="toolbar"><button class="btn" data-do="exp">Verileri göster ve kopyala</button><button class="btn" data-do="dl">Dosya olarak indir</button><label class="btn" style="cursor:pointer">Dosyadan yükle<input type="file" id="s-file" accept="application/json" hidden></label><button class="btn primary" data-do="imp">Geri yükle</button><button class="btn ghost danger" data-do="reset">Her şeyi sıfırla</button></div>
     <div id="reset-confirm"></div>
   </section>`;
+}
+
+
+/* =========================================================
+   WORD (.docx) AKTARIMI — kütüphanesiz: WordprocessingML + sıkıştırmasız ZIP
+   ========================================================= */
+const CRC_T = (()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32 = u => {let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRC_T[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0};
+function zipStore(files){
+  const enc=new TextEncoder(); const parts=[]; const central=[]; let off=0;
+  const d=new Date(); const dt=((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))&0xFFFF, dd=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
+  files.forEach(f=>{
+    const name=enc.encode(f.name), data=typeof f.data==='string'?enc.encode(f.data):f.data, crc=crc32(data);
+    const h=new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,dt,true);h.setUint16(12,dd,true);
+    h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);h.setUint16(26,name.length,true);h.setUint16(28,0,true);
+    parts.push(new Uint8Array(h.buffer),name,data);
+    const c=new DataView(new ArrayBuffer(46));
+    c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,dt,true);c.setUint16(14,dd,true);
+    c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,name.length,true);c.setUint32(42,off,true);
+    central.push(new Uint8Array(c.buffer),name);
+    off+=30+name.length+data.length;
+  });
+  const csize=central.reduce((s,a)=>s+a.length,0);
+  const e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,csize,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(e.buffer)],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+const X = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
+const isXML = s => typeof s==='string' && s.startsWith('<w:');
+/* Run: metin parçası. o = {b, i, color, sz} */
+function wr(text,o={}){
+  const rp=(o.b?'<w:b/>':'')+(o.i?'<w:i/>':'')+(o.color?`<w:color w:val="${o.color}"/>`:'')+(o.sz?`<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>`:'');
+  return String(text??'').split('\n').map((t,i)=>`${i?'<w:r><w:br/></w:r>':''}<w:r>${rp?`<w:rPr>${rp}</w:rPr>`:''}<w:t xml:space="preserve">${X(t)}</w:t></w:r>`).join('');
+}
+/* Paragraf: runs = string (düz) ya da wr() çıktılarının birleşimi. o = {style, ind, after, before, align, keep, shade} */
+function wp(runs,o={}){
+  const pp=(o.style?`<w:pStyle w:val="${o.style}"/>`:'')+(o.keep?'<w:keepNext/>':'')+(o.shade?`<w:shd w:val="clear" w:color="auto" w:fill="${o.shade}"/>`:'')
+    +`<w:spacing w:before="${o.before??0}" w:after="${o.after??80}"/>`+(o.ind?`<w:ind w:left="${o.ind}"${o.hang?` w:hanging="${o.hang}"`:''}/>`:'')+(o.align?`<w:jc w:val="${o.align}"/>`:'');
+  return `<w:p><w:pPr>${pp}</w:pPr>${isXML(runs)?runs:wr(runs)}</w:p>`;
+}
+const wh1 = t => wp(wr(t),{style:'Heading1',keep:true,before:200,after:100});
+const wh2 = t => wp(wr(t),{style:'Heading2',keep:true,before:140,after:60});
+const wbul = (runs,ind=360) => wp(wr('•\t')+(isXML(runs)?runs:wr(runs)),{ind,hang:240,after:40});
+const wbr = () => '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+/* Tablo: rows = [[{c (iç XML), w (twip), fill, span}]] */
+function wtable(rows,widths){
+  const tw=widths.reduce((a,b)=>a+b,0);
+  const bd='<w:tblBorders>'+['top','left','bottom','right','insideH','insideV'].map(s=>`<w:${s} w:val="single" w:sz="4" w:space="0" w:color="9AA7B8"/>`).join('')+'</w:tblBorders>';
+  return `<w:tbl><w:tblPr><w:tblW w:w="${tw}" w:type="dxa"/>${bd}<w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="60" w:type="dxa"/><w:left w:w="100" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${widths.map(w=>`<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>`
+   + rows.map(r=>`<w:tr><w:trPr><w:cantSplit/>${r.minH?`<w:trHeight w:val="${r.minH}"/>`:''}</w:trPr>${(r.cells||r).map(c=>{const span=c.span||1;const w=widths.slice(c.col||0,(c.col||0)+span).reduce((a,b)=>a+b,0)||widths[0];
+      return `<w:tc><w:tcPr><w:tcW w:w="${c.w||w}" w:type="dxa"/>${span>1?`<w:gridSpan w:val="${span}"/>`:''}${c.fill?`<w:shd w:val="clear" w:color="auto" w:fill="${c.fill}"/>`:''}</w:tcPr>${c.c||wp('')}</w:tc>`}).join('')}</w:tr>`).join('')+'</w:tbl>'+wp('',{after:60});
+}
+function docxBlob(body,title){
+  const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1021" w:right="1021" w:bottom="1021" w:left="1021" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri" w:eastAsia="Calibri"/><w:sz w:val="21"/><w:szCs w:val="21"/><w:lang w:val="tr-TR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="80" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
+<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr><w:rPr><w:b/><w:color w:val="1C2840"/><w:sz w:val="32"/><w:szCs w:val="32"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:keepNext/><w:pBdr><w:bottom w:val="single" w:sz="6" w:space="2" w:color="2C6FD6"/></w:pBdr><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:color w:val="1C2840"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:keepNext/><w:outlineLvl w:val="1"/></w:pPr><w:rPr><w:b/><w:color w:val="2C6FD6"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:style>
+</w:styles>`;
+  const files=[
+    {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>'},
+    {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>'},
+    {name:'docProps/core.xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${X(title)}</dc:title><dc:creator>${X(S.settings.ogretmen||'Minik Adımlar')}</dc:creator></cp:coreProperties>`},
+    {name:'word/_rels/document.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+    {name:'word/document.xml',data:doc},
+    {name:'word/styles.xml',data:styles}
+  ];
+  return zipStore(files);
+}
+/* Dosyayı kullanıcıya ver: önizlemede "downloads" izniyle, bilgisayarda doğrudan indirme */
+async function saveFile(filename,blob){
+  if(inFrame && window.claude && window.claude.use){
+    let dl=null; try{dl=await window.claude.use('downloads')}catch(e){}
+    if(!dl){toast('Bu görünümde dosya kaydedilemiyor. Sayfayı bilgisayarınızda index.html olarak açın.');return}
+    try{await dl.save({filename,data:blob});toast(`${filename} kaydedildi`)}
+    catch(e){toast(e&&e.code==='declined'?'Kaydetme iptal edildi':e&&e.code==='rate_limited'?'Açık bir kaydetme penceresi var; biraz sonra tekrar deneyin':'Dosya kaydedilemedi')}
+    return;
+  }
+  const u=URL.createObjectURL(blob); const l=document.createElement('a'); l.href=u; l.download=filename; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),3000); toast(`${filename} indirildi`);
+}
+const slug = s => String(s||'').toLocaleLowerCase('tr').replace(/[çğıöşü]/g,c=>({'ç':'c','ğ':'g','ı':'i','ö':'o','ş':'s','ü':'u'}[c])).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'kayit';
+
+/* ---- Word içerik yardımcıları ---- */
+function wHierS(age,codes){
+  if(!codes.length) return wp(wr('—',{color:'666666'}));
+  let x=''; const byAlan={}; codes.forEach(c=>{const si=subInfo(age,c); if(si)(byAlan[si.o.alan]=byAlan[si.o.alan]||[]).push(si)});
+  ALAN_KEYS.filter(a=>byAlan[a]).forEach(a=>{ x+=wp(wr(ALAN[a].up,{b:true,color:'2C6FD6'}),{before:80,after:40,keep:true}); let g0=null,o0=null;
+    byAlan[a].forEach(si=>{const g=PROG.og[si.o.k];
+      if(g!==g0){x+=wp(wr(`${g}. ${PROG.g[g]}`,{b:true}),{after:20,keep:true});g0=g;o0=null}
+      if(si.o.k!==o0){x+=wp(wr(`${si.o.k}. `,{b:true})+wr(si.o.ad),{ind:284,after:20,keep:true});o0=si.o.k}
+      x+=wp(wr(`${si.o.k}.${si.l}. `,{b:true})+wr(si.t),{ind:568,after:20});});});
+  return x;
+}
+const wGroup = (groups,codes) => codes.length ? groups.filter(g=>g[2].some(v=>codes.includes(v[0]))).map(g=>wp(wr(`${g[0]}. ${g[1]}`,{b:true}),{after:20,keep:true})+g[2].filter(v=>codes.includes(v[0])).map(v=>wp(wr(`${v[0]}. `,{b:true})+wr(v[1]),{ind:284,after:20})).join('')).join('') : wp('—');
+const wFlat = (list,codes) => codes.length ? list.filter(v=>codes.includes(v[0])).map(v=>wp(wr(`${v[0]}. `,{b:true})+wr(v[1]),{after:20})).join('') : wp('—');
+const wLabel = (label,text) => wp(wr(label+': ',{b:true})+wr(text||'—'),{after:60});
+const wKavram = pairs => {const by={};pairs.forEach(p=>{const [k,v]=p.split('|');(by[k]=by[k]||[]).push(v)});return KAVRAM.filter(k=>by[k[0]]).map(k=>`${k[0]}: ${uniq(by[k[0]]).join(', ')}`).join('; ')||'—'};
+const wText = t => String(t||'').split(/\n{2,}/).map(s=>wp(wr(s))).join('')||wp('—');
+const wInfo = pairs => wtable(pairs.map(([k,v])=>[{c:wp(wr(k,{b:true}),{after:0}),fill:'EEF3FB',col:0},{c:wp(wr(v||''),{after:0}),col:1}]),[2700,7164]);
+
+function daySorular(p){ return uniq([...p.acts.flatMap(a=>a.soru.slice(0,2)),'Bugün en çok hangi etkinlikten hoşlandın? Neden?','Zorlandığın bir bölüm oldu mu? O sırada nasıl hissettin?','Etkinlikler sırasında arkadaşlarınla nasıl iş birliği yaptın?']); }
+
+function docDay(k){
+  const p=getDay(k); const st=S.settings; const age=AGE(); const cs=dayCodes(p); const acts=p.acts; const th=TEMA[p.tema]||TEMA.okul;
+  const mats=[]; acts.forEach(a=>a.mat.forEach(m=>{if(!mats.includes(m[0]))mats.push(m[0])}));
+  let b=wp(wr('GÜNLÜK PLAN'),{style:'Title'});
+  b+=wInfo([['Okul Adı',st.okul],['Yaş Grubu (Ay)',age],['Öğretmenin Adı',st.ogretmen],['Tarih',fmtLong(k)],['Tema',`${th.ad}${p.haftaBaslik&&p.haftaBaslik!==th.ad?' · '+p.haftaBaslik:''}`]]);
+  b+=wh1('ALAN BECERİLERİ, ÖĞRENME ÇIKTILARI VE SÜREÇ BİLEŞENLERİ')+wHierS(age,cs.s);
+  b+=wh1('EĞİLİMLER')+wGroup(EGILIM,cs.eg);
+  b+=wh1('PROGRAMLAR ARASI BİLEŞENLER')+wh2('Sosyal-Duygusal Öğrenme Becerileri')+wFlat(SDB,cs.sdb)+wh2('Değerler')+wGroup(DEGER,cs.dg)+wh2('Okuryazarlık Becerileri')+wFlat(OB,cs.ob);
+  b+=wh1('İÇERİK ÇERÇEVESİ')+wLabel('Kavramlar',wKavram(acts.flatMap(a=>a.kavram)))+wLabel('Sözcükler',uniq(acts.flatMap(a=>a.sozcuk)).join(', '))+wLabel('Materyaller',mats.join(', '))+wLabel('Eğitim / Öğrenme Ortamları',p.ortamlar);
+  b+=wh1('ÖĞRENME-ÖĞRETME UYGULAMALARI');
+  b+=wh2('Güne Başlama Zamanı')+wText(p.flow.baslama)+wh2('Öğrenme Merkezlerinde Oyun')+wText(p.flow.merkez)+wh2('Beslenme, Toplanma ve Temizlik')+wText(p.flow.beslenme);
+  b+=wh2('ETKİNLİKLER');
+  if(!acts.length) b+=wp('—');
+  acts.forEach(a=>{ b+=wp(wr(`${ALAN[a.alan].ad} (${a.grup} Etkinliği)`,{b:true})+wr(` — ${a.ad}`,{i:true}),{before:100,after:40,keep:true});
+    b+=a.adim.map(s=>wbul(toPlain(s))).join(''); });
+  b+=wh1('FARKLILAŞTIRMA')+wh2('Zenginleştirme')+(acts.map(a=>wp(a.zengin)).join('')||wp('—'))+wh2('Destekleme')+(acts.map(a=>wp(a.destek)).join('')||wp('—'));
+  b+=wh1('GÜNÜ DEĞERLENDİRME')+wp('Gün sonunda çocuklarla kısa bir değerlendirme çemberi oluşturulur. Çocukların gün içerisinde gerçekleştirdikleri etkinliklere ilişkin deneyimlerini, düşüncelerini ve duygularını paylaşmalarına fırsat verilir. Daha sonra aşağıdaki sorular sorularak günün değerlendirmesi yapılır.')
+    +daySorular(p).map(s=>wbul(s)).join('')+wp('Çocukların verdikleri yanıtlar ve gün boyunca yapılan gözlemler çocuk, program ve öğretmen açısından değerlendirilerek sonraki öğrenme-öğretme uygulamaları planlanır.')+(p.degEk?wText(p.degEk):'');
+  b+=wh1('AİLE VE TOPLUM KATILIMI')+wh2('Aile Katılımı')+uniq(acts.map(a=>a.aile)).map(x=>wp(x)).join('')+(p.aileEk?wText(p.aileEk):'')+wh2('Toplum Katılımı')+wText(p.toplum);
+  if(p.notlar) b+=wh1('ÖĞRETMEN NOTU')+wText(p.notlar);
+  return b;
+}
+function docMonth(key){
+  const mo=monthOf(key); const M=getMonth(key); const st=S.settings; const age=AGE(); const [y,mm]=key.split('-').map(Number); const sel=M.sel;
+  let b=wp(wr('AYLIK EĞİTİM PLANI'),{style:'Title'});
+  b+=wInfo([['Okul Adı',st.okul],['Yaş Grubu (Ay)',age],['Öğretmenin Adı',st.ogretmen],['Ay',`${AYLAR[mm-1]} ${y}`],['Ayın Teması',mo?mo.baslik:''],['Haftalar',mo?mo.weeks.map((w,i)=>`${i+1}. ${w.baslik}`).join(' · '):'']]);
+  b+=wh1('ALAN BECERİLERİ, ÖĞRENME ÇIKTILARI VE SÜREÇ BİLEŞENLERİ')+wHierS(age,ordS(age,sel.s.filter(c=>subInfo(age,c))));
+  b+=wh1('EĞİLİMLER')+wGroup(EGILIM,sel.eg);
+  b+=wh1('PROGRAMLAR ARASI BİLEŞENLER')+wh2('Sosyal-Duygusal Öğrenme Becerileri')+wFlat(SDB,sel.sdb)+wh2('Değerler')+wGroup(DEGER,sel.dg)+wh2('Okuryazarlık Becerileri')+wFlat(OB,sel.ob);
+  b+=wh1('KAVRAMLAR');
+  {const by={};sel.kv.forEach(p=>{const [k,v]=p.split('|');(by[k]=by[k]||[]).push(v)}); b+=KAVRAM.filter(k=>by[k[0]]).map(k=>wLabel(k[0],uniq(by[k[0]]).join(', '))).join('')||wp('—');}
+  b+=wh1('BELİRLİ GÜN VE HAFTALAR')+((mo&&mo.gunler.length)?mo.gunler.map(g=>wbul(g,200)).join(''):wp('—'));
+  b+=wh1('ÖĞRENME-ÖĞRETME YAŞANTILARI')+wh2('Öğrenme-Öğretme Uygulamaları')+wText(M.uyg);
+  b+=wh1('FARKLILAŞTIRMA')+wh2('Zenginleştirme')+wText(M.zen)+wh2('Destekleme')+wText(M.des);
+  b+=wh1('AİLE VE TOPLUM KATILIMI')+wText(M.aile);
+  b+=wh1('ÖĞRENME KANITLARI (DEĞERLENDİRME)')+wText(M.kanit)+wh2('Çocuk Açısından')+wText(M.cocuk)+wh2('Program Açısından')+wText(M.program)+wh2('Öğretmen Açısından')+wText(M.ogretmen);
+  b+=wh1('ÖĞRETMEN YANSITMALARI')+wText(M.yansitma);
+  return b;
+}
+/* EK-2 Anekdot Kayıt Formu */
+function anekSkills(r){
+  const age=AGE(); const lines=[];
+  (r.kodlar||[]).forEach(c=>{const k=codeKind(c); let t='';
+    if(k==='s'){const si=subInfo(age,c); if(si) t=si.t;}
+    else if(k==='sdb'){const x=SDB.find(v=>v[0]===c); t=x?x[1]:''}
+    else if(k==='eg'){const x=EGILIM.flatMap(g=>g[2]).find(v=>v[0]===c); t=x?x[1]:''}
+    else if(k==='dg'){const x=DEGER.flatMap(g=>g[2]).find(v=>v[0]===c); t=x?x[1]:''}
+    if(t) lines.push([c,t]);});
+  return lines;
+}
+function docAnek(r){
+  const W=[2700,7164]; const fill='F2E2DC';
+  const sk=anekSkills(r);
+  const skXML=(sk.map(([c,t])=>wp(wr(c+'. ',{b:true})+wr(t),{after:20})).join('')+(r.beceri?wText(r.beceri):''))||wp('');
+  let b=wp(wr('EK-2 ANEKDOT KAYIT FORMU',{color:'D9542B'}),{style:'Title'});
+  b+=wp(wr('Günlük plan kapsamında gerçekleştirilen etkinliklerin ardından yapılan gözlemler doğrultusunda günlük veya haftalık olarak ya da özel bir durumun ortaya çıkması hâlinde anekdot kaydı tutulması beklenmektedir. Bu form, çocuğa ilişkin olumlu veya olumsuz nitelikte dikkat çekici bir durum gözlemlendiğinde öğretmen tarafından gerektiği zaman doldurulabilir.',{sz:19,color:'444444'}),{after:160});
+  b+=wtable([
+    [{c:wp(wr('Çocuğun Adı Soyadı'),{after:0}),col:0},{c:wp(wr(r.cocuk),{after:0}),col:1}],
+    [{c:wp(wr('Tarih'),{after:0}),col:0},{c:wp(wr(r.tarih?fmtLong(r.tarih):''),{after:0}),col:1}],
+    [{c:wp(wr('Gözlenen Mekân'),{after:0}),col:0},{c:wp(wr(r.mekan),{after:0}),col:1}],
+    [{c:wp(wr('Gözlenen Durum')+wr('\n(Bu formu doldurmanıza neden olan durumu açıklamanız beklenmektedir.)',{sz:17,color:'555555'}),{after:0}),span:2,fill}],
+    {minH:1800,cells:[{c:wText(r.durum),span:2}]},
+    [{c:wp(wr('Gözlenen Beceriler'),{after:0}),span:2,fill}],
+    {minH:1500,cells:[{c:skXML,span:2}]},
+    [{c:wp(wr('Gözlemcinin Genel Değerlendirmesi'),{after:0}),span:2,fill}],
+    {minH:1800,cells:[{c:wText(r.deg),span:2}]}
+  ],W);
+  b+=wp(wr(`Gözlemci: ${S.settings.ogretmen||''}`,{sz:19,color:'444444'}),{before:120});
+  return b;
+}
+async function exportWord(kind,arg){
+  try{
+    let body,name,title;
+    if(kind==='day'){body=docDay(arg);name=`gunluk-plan-${arg}.docx`;title=`Günlük Plan ${fmtLong(arg)}`;}
+    else if(kind==='month'){body=docMonth(arg);name=`aylik-plan-${arg}.docx`;title=`Aylık Eğitim Planı ${arg}`;}
+    else if(kind==='anek'){const r=S.anek.find(x=>x.id===arg);body=docAnek(r);name=`anekdot-${slug(r.cocuk)}-${r.tarih||''}.docx`;title='Anekdot Kayıt Formu';}
+    else if(kind==='anekAll'){const list=anekFiltered();body=list.map(docAnek).join(wbr());name=`anekdot-kayitlari-${slug(S.ui.anekF&&S.ui.anekF!=='ALL'?S.ui.anekF:'tum-cocuklar')}.docx`;title='Anekdot Kayıtları';}
+    await saveFile(name,docxBlob(body,title));
+  }catch(e){console.error(e);toast('Word dosyası oluşturulamadı');}
+}
+
+/* =========================================================
+   ANEKDOT KAYITLARI (EK-2)
+   ========================================================= */
+const MEKAN = ['Sınıf','Öğrenme merkezi (blok)','Öğrenme merkezi (sanat)','Öğrenme merkezi (dramatik oyun)','Öğrenme merkezi (kitap)','Öğrenme merkezi (fen ve doğa)','Okul bahçesi','Salon','Yemekhane / beslenme masası','Okul dışı öğrenme ortamı'];
+const newAnek = () => ({id:null,cocuk:'',tarih:dkey(new Date()),mekan:'Sınıf',durum:'',kodlar:[],beceri:'',deg:''});
+function anekDraft(){ if(!S.ui.anekDraft) S.ui.anekDraft=newAnek(); return S.ui.anekDraft; }
+function anekFiltered(){ const f=S.ui.anekF||'ALL'; return S.anek.filter(r=>f==='ALL'||r.cocuk===f).sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||'')); }
+function childNames(){ return uniq([...(S.cocuklar||[]),...S.anek.map(r=>r.cocuk)]).sort((a,b)=>a.localeCompare(b,'tr')); }
+function vAnek(){
+  const d=anekDraft(); const age=AGE(); const names=childNames(); const f=S.ui.anekF||'ALL'; const list=anekFiltered();
+  const plan=S.daily[d.tarih]; const sug=plan?(()=>{const c=dayCodes(plan);return [...c.s,...c.sdb].filter(x=>!d.kodlar.includes(x))})():[];
+  const sk=anekSkills(d);
+  return `
+  <div class="page-head"><div><span class="label">EK-2 · Öğrenme kanıtları</span><h1>Anekdot Kayıtları</h1><p class="muted">Günlük plan kapsamında gerçekleştirilen etkinliklerin ardından yapılan gözlemler doğrultusunda günlük veya haftalık olarak ya da özel bir durumun ortaya çıkması hâlinde anekdot kaydı tutulması beklenmektedir. Form, çocuğa ilişkin olumlu veya olumsuz nitelikte dikkat çekici bir durum gözlemlendiğinde doldurulabilir.</p></div></div>
+  <div class="anek-grid">
+  <section class="sheet anek-form">
+    <div class="sheet-title"><b>${d.id?'KAYDI DÜZENLE':'YENİ ANEKDOT KAYDI'}</b><span>${esc(age)}</span></div>
+    <div class="ek2">
+      <label class="ek2-row"><span>Çocuğun Adı Soyadı</span><input type="text" id="a-cocuk" list="a-names" data-bind="anek.cocuk" value="${esc(d.cocuk)}" placeholder="Ad Soyad"></label>
+      <datalist id="a-names">${names.map(n=>`<option value="${esc(n)}"></option>`).join('')}</datalist>
+      <label class="ek2-row"><span>Tarih</span><input type="date" id="a-tarih" value="${esc(d.tarih)}"></label>
+      <label class="ek2-row"><span>Gözlenen Mekân</span><input type="text" id="a-mekan" list="a-mekanlar" data-bind="anek.mekan" value="${esc(d.mekan)}"></label>
+      <datalist id="a-mekanlar">${MEKAN.map(n=>`<option value="${esc(n)}"></option>`).join('')}</datalist>
+      <div class="ek2-head">Gözlenen Durum<small>(Bu formu doldurmanıza neden olan durumu açıklamanız beklenmektedir.)</small></div>
+      <textarea id="a-durum" data-bind="anek.durum" placeholder="Ne oldu? Çocuk ne yaptı, ne söyledi? Gözlemlediğinizi yorum katmadan yazın.">${esc(d.durum)}</textarea>
+      <div class="ek2-head">Gözlenen Beceriler</div>
+      <div class="ek2-body">
+        ${sk.length?`<div class="hier">${sk.map(([c,t])=>`<div class="h-sub" style="padding-left:0"><b>${c}.</b> ${esc(t)} <button class="icon-btn" data-do="akod" data-v="${esc(c)}" aria-label="${c} kaldır" style="width:24px;height:24px">✕</button></div>`).join('')}</div>`:'<p class="muted small">Programdan beceri seçin ya da aşağıya yazın.</p>'}
+        ${sug.length?`<div><span class="label">${fmtShort(d.tarih)} planından öneriler</span><div class="chips" style="margin-top:4px">${sug.slice(0,14).map(c=>`<button class="chip code" data-do="akod" data-v="${esc(c)}" title="${esc((subInfo(age,c)||{}).t||'')}">+ ${c}</button>`).join('')}</div></div>`:''}
+        <div class="toolbar"><button class="btn sm" data-do="pick" data-target="anek">Programdan seç</button></div>
+        <textarea id="a-beceri" data-bind="anek.beceri" placeholder="Ek açıklama (isteğe bağlı)">${esc(d.beceri)}</textarea>
+      </div>
+      <div class="ek2-head">Gözlemcinin Genel Değerlendirmesi</div>
+      <textarea id="a-deg" data-bind="anek.deg" placeholder="Gözleminizi nasıl yorumluyorsunuz? Sonraki adımda neyi destekleyeceksiniz?">${esc(d.deg)}</textarea>
+    </div>
+    <div class="toolbar" style="padding:14px 18px"><button class="btn primary" data-do="asave">${d.id?'Değişiklikleri kaydet':'Kaydı ekle'}</button>${d.id?'<button class="btn ghost" data-do="anew">Yeni kayda geç</button>':'<button class="btn ghost" data-do="aclear">Formu temizle</button>'}</div>
+  </section>
+  <section style="display:grid;gap:12px;align-content:start;min-width:0">
+    <div class="panel" style="display:grid;gap:10px">
+      <div class="page-head"><h2>Kayıtlar (${S.anek.length})</h2>${list.length?`<button class="btn sm" data-do="word" data-kind="anekAll">📄 ${f==='ALL'?'Tümünü':'Bu çocuğun kayıtlarını'} Word’e aktar</button>`:''}</div>
+      <div class="alan-pick"><button data-do="af" data-v="ALL" aria-pressed="${f==='ALL'}" style="--ac:var(--accent)">Tüm çocuklar</button>${names.map(n=>`<button data-do="af" data-v="${esc(n)}" aria-pressed="${f===n}" style="--ac:var(--accent)">${esc(n)} (${S.anek.filter(r=>r.cocuk===n).length})</button>`).join('')}</div>
+    </div>
+    ${list.length?list.map(r=>{const s2=anekSkills(r);return `<article class="anek-card"><div class="anek-top"><div><b>${esc(r.cocuk||'—')}</b><span class="muted small"> · ${r.tarih?fmtShort(r.tarih):''} · ${esc(r.mekan||'')}</span></div></div>
+      <p class="small">${esc((r.durum||'').slice(0,220))}${(r.durum||'').length>220?'…':''}</p>
+      ${s2.length?`<div class="chips">${s2.slice(0,8).map(([c])=>`<span class="chip code">${c}</span>`).join('')}</div>`:''}
+      <div class="toolbar"><button class="btn sm" data-do="aedit" data-id="${r.id}">Düzenle</button><button class="btn sm" data-do="word" data-kind="anek" data-id="${r.id}">📄 Word’e aktar</button><button class="btn sm ghost danger" data-do="adel" data-id="${r.id}">Sil</button></div>
+      <div id="adel-${r.id}"></div></article>`}).join(''):`<div class="empty"><div class="em">📝</div><b>Henüz anekdot kaydı yok</b><span class="small">Soldaki formu doldurup "Kaydı ekle"ye dokunun. Kayıtlar yalnızca bu tarayıcıda saklanır.</span></div>`}
+  </section></div>`;
 }
 
 /* ---------- Modallar ---------- */
@@ -1345,11 +1596,11 @@ function bankModal(){
   <div class="modal-body">${S.bank.length?S.bank.map(a=>`<div class="plan-act" style="--ac:${ALAN[a.alan].c}"><div class="plan-act-head"><div class="plan-act-em">${a.gorsel.map(em).join('')}</div><div style="min-width:0"><h4>${esc(a.ad)}</h4><div class="small muted">${ALAN[a.alan].ad} · ${esc(a.temaAd)} · ${esc(a.yas)}</div></div><button class="btn sm primary" data-do="bpick" data-id="${a.id}">Ekle</button></div></div>`).join(''):'<div class="empty"><div class="em">📦</div><b>Bankanız boş</b><span class="small">Etkinlik üreticiden kaydettiğiniz etkinlikler burada görünür.</span></div>'}</div>`);
 }
 /* Öğrenme çıktısı seçici (aylık plan ve günlük plan ek çıktıları) */
-function pickTarget(){ return S.ui.pickT==='day' ? (getDay(S.ui.day).extra=getDay(S.ui.day).extra||[]) : getMonth(S.ui.month).sel.s; }
+function pickTarget(){ if(S.ui.pickT==='anek') return anekDraft().kodlar; return S.ui.pickT==='day' ? (getDay(S.ui.day).extra=getDay(S.ui.day).extra||[]) : getMonth(S.ui.month).sel.s; }
 function pickModal(){
   const age=AGE(); const tab=S.ui.pickA||'TA'; const set=pickTarget();
   const fromActs = S.ui.pickT==='day' ? dayCodes(getDay(S.ui.day)).s : [];
-  modal(`<div class="modal-head"><div><span class="label">${esc(age)} · ${S.ui.pickT==='day'?'Günlük plan':'Aylık plan'}</span><h2>Süreç bileşeni seç</h2></div><button class="icon-btn" data-do="mclose" aria-label="Kapat">✕</button></div>
+  modal(`<div class="modal-head"><div><span class="label">${esc(age)} · ${({day:'Günlük plan',month:'Aylık plan',anek:'Anekdot kaydı · gözlenen beceriler'})[S.ui.pickT]}</span><h2>Süreç bileşeni seç</h2></div><button class="icon-btn" data-do="mclose" aria-label="Kapat">✕</button></div>
   <div class="modal-body">
     <div class="alan-pick">${ALAN_KEYS.map(a=>{const n=set.filter(c=>{const s=subInfo(age,c);return s&&s.o.alan===a}).length;return `<button data-do="pickA" data-v="${a}" aria-pressed="${tab===a}" style="--ac:${ALAN[a].c}">${ALAN[a].em} ${ALAN[a].ad}${n?` (${n})`:''}</button>`}).join('')}</div>
     ${S.ui.pickT==='day'?'<p class="note">Etkinliklerden gelen süreç bileşenleri otomatik eklenir (kilitli). Buradan ek bileşen seçebilirsiniz.</p>':''}
@@ -1382,7 +1633,7 @@ let toastT;
 function toast(msg){clearTimeout(toastT);let el=$('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=msg;toastT=setTimeout(()=>el.remove(),2600)}
 
 /* ---------- Çizim ---------- */
-const VIEWS={home:vHome,year:vYear,month:vMonth,day:vDay,gen:vGen,bank:vBank,set:vSet};
+const VIEWS={home:vHome,year:vYear,month:vMonth,day:vDay,gen:vGen,bank:vBank,anek:vAnek,set:vSet};
 const grow = t => { t.style.height='auto'; t.style.height=(t.scrollHeight+4)+'px'; };
 function render(keepScroll){ const y=window.scrollY; renderNav(); $('#view').innerHTML=VIEWS[S.ui.view](); document.querySelectorAll('#view textarea').forEach(grow); window.scrollTo(0,keepScroll?y:0); }
 function go(v){S.ui.view=v;save();render();}
@@ -1441,8 +1692,20 @@ document.addEventListener('click',e=>{
       box.querySelectorAll('[data-ef]').forEach(el=>{const f=el.dataset.ef; let v=el.innerText.trim(); if(f==='adim') v=resolveText(a.yas,fromPlain(v)); if(el.dataset.i!==undefined){a[f][+el.dataset.i]=v}else a[f]=v;});
       save(); closeModal(); render(true); toast('Etkinlik kaydedildi'); break;}
     case 'exp': {const t=$('#s-json'); t.value=JSON.stringify(S); t.select(); try{navigator.clipboard.writeText(t.value).then(()=>toast('Veriler panoya kopyalandı'),()=>toast('Veriler seçildi; kopyalamak için Ctrl+C'))}catch(err){toast('Veriler seçildi; kopyalamak için Ctrl+C')} break;}
-    case 'dl': {const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}); const u=URL.createObjectURL(blob); const l=document.createElement('a'); l.href=u; l.download=`minik-adimlar-yedek-${dkey(new Date())}.json`; l.click(); setTimeout(()=>URL.revokeObjectURL(u),2000); break;}
-    case 'imp': {try{const o=JSON.parse($('#s-json').value); if(!o.year||!o.settings||o.v!==2) throw 0; S=o; save(); render(); toast('Veriler geri yüklendi');}catch(err){toast('Yedek okunamadı: kutudaki metin bu uygulamanın yedeği olmalı');} break;}
+    case 'dl': saveFile(`minik-adimlar-yedek-${dkey(new Date())}.json`,new Blob([JSON.stringify(S,null,1)],{type:'application/json'})); break;
+    case 'word': exportWord(b.dataset.kind, b.dataset.kind==='day'?S.ui.day:b.dataset.kind==='month'?S.ui.month:id); break;
+    case 'anekfor': {const d=newAnek(); d.tarih=S.ui.day; S.ui.anekDraft=d; go('anek'); break;}
+    case 'akod': {const d=anekDraft(); const v=b.dataset.v; d.kodlar=d.kodlar.includes(v)?d.kodlar.filter(x=>x!==v):[...d.kodlar,v]; save(); render(true); break;}
+    case 'asave': {const d=anekDraft(); if(!d.cocuk.trim()){toast('Çocuğun adını yazın');$('#a-cocuk').focus();break;} if(!d.durum.trim()){toast('Gözlenen durumu yazın');$('#a-durum').focus();break;}
+      const rec={...d,cocuk:d.cocuk.trim(),kodlar:d.kodlar.slice()}; if(d.id){const i=S.anek.findIndex(x=>x.id===d.id); if(i>=0) S.anek[i]=rec; else S.anek.push(rec);} else {rec.id=uid(); S.anek.push(rec);}
+      const keep={mekan:d.mekan,tarih:d.tarih}; S.ui.anekDraft={...newAnek(),...keep}; save(); render(true); toast(d.id?'Kayıt güncellendi':'Anekdot kaydı eklendi'); break;}
+    case 'anew': case 'aclear': S.ui.anekDraft=newAnek(); save(); render(true); break;
+    case 'af': S.ui.anekF=b.dataset.v; save(); render(true); break;
+    case 'aedit': {const r=S.anek.find(x=>x.id===id); S.ui.anekDraft={...r,kodlar:r.kodlar.slice()}; save(); render(); break;}
+    case 'adel': $('#adel-'+id).innerHTML=`<div class="note" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">Bu kayıt silinsin mi? <button class="btn sm danger" data-do="adel2" data-id="${id}">Evet, sil</button><button class="btn sm ghost" data-do="adel0" data-id="${id}">Vazgeç</button></div>`; break;
+    case 'adel0': $('#adel-'+id).innerHTML=''; break;
+    case 'adel2': S.anek=S.anek.filter(x=>x.id!==id); if(anekDraft().id===id) S.ui.anekDraft=newAnek(); save(); render(true); toast('Kayıt silindi'); break;
+    case 'imp': {try{const o=JSON.parse($('#s-json').value); if(!o.year||!o.settings||o.v!==2) throw 0; S=o; S.anek=S.anek||[]; S.cocuklar=S.cocuklar||[]; save(); render(); toast('Veriler geri yüklendi');}catch(err){toast('Yedek okunamadı: kutudaki metin bu uygulamanın yedeği olmalı');} break;}
     case 'reset': $('#reset-confirm').innerHTML='<div class="note" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">Tüm planlar ve banka silinecek. Emin misiniz? <button class="btn sm danger" data-do="reset2">Evet, sıfırla</button><button class="btn sm ghost" data-do="reset0">Vazgeç</button></div>'; break;
     case 'reset0': $('#reset-confirm').innerHTML=''; break;
     case 'reset2': try{localStorage.removeItem(KEY)}catch(err){} seed(); save(); render(); toast('Uygulama sıfırlandı'); break;
@@ -1451,7 +1714,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{
   const t=e.target; const bind=t.dataset.bind;
   if(t.tagName==='TEXTAREA') grow(t);
-  if(bind){const [scope,...path]=bind.split('.'); let obj= scope==='day'?getDay(S.ui.day): scope==='month'?getMonth(S.ui.month): S.settings;
+  if(bind){const [scope,...path]=bind.split('.'); let obj= scope==='day'?getDay(S.ui.day): scope==='month'?getMonth(S.ui.month): scope==='anek'?anekDraft(): S.settings;
     for(let i=0;i<path.length-1;i++) obj=obj[path[i]]; obj[path[path.length-1]]=t.value; save(); if(scope==='set') renderNav(); return;}
   if(t.id==='bq'||t.id==='pq'){ if(t.id==='bq') S.ui.bankQ=t.value; else S.ui.progQ=t.value; const id=t.id,pos=t.selectionStart; render(true); const n=$('#'+id); n.focus(); n.setSelectionRange(pos,pos);}
 });
@@ -1459,6 +1722,7 @@ document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset.pick){const set=pickTarget(); const c=t.dataset.pick; const i=set.indexOf(c); if(t.checked&&i<0) set.push(c); if(!t.checked&&i>=0) set.splice(i,1); save(); return;}
   if(t.id==='msel'){S.ui.month=t.value;save();render();}
+  else if(t.id==='a-tarih'&&t.value){anekDraft().tarih=t.value;save();render(true);}
   else if(t.id==='dsel'&&t.value){S.ui.day=t.value;save();render();}
   else if(t.id==='dtema'){const p=getDay(S.ui.day);p.tema=t.value;p.haftaBaslik=TEMA[t.value].ad;save();render(true);}
   else if(t.id==='g-tema'){S.ui.gen.tema=t.value;save();}
@@ -1470,7 +1734,7 @@ document.addEventListener('change',e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){const wasPick=!!$('.pick-list');closeModal();if(wasPick)render(true);}});
 
 /* ---------- Başlat ---------- */
-S = load() || seed(); save();
+S = load() || seed(); S.anek=S.anek||[]; S.cocuklar=S.cocuklar||[]; save();
 const h=(location.hash||'').slice(1); if(VIEWS[h]) S.ui.view=h;
 render();
 
