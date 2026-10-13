@@ -24,10 +24,28 @@ internet bağlantısı (yazı tipleri hariç) veya sunucu gerekmez.
   materyaller, dikkat çekme, adımlar, değerlendirme soruları, destekleme /
   zenginleştirme ve aile katılımı bulunur. Tek dokunuşla plana ya da bankaya eklenir.
 - **Etkinlik Bankam** — Kaydedilen etkinlikler; arama ve alan filtresi.
-- **Ayarlar** — Öğretmen/okul bilgileri, yedekleme (JSON), öğrenme çıktıları listesini düzenleme.
+- **Ayarlar** — Okul, öğretmen, yaş grubu; programdaki tüm çıktıları arayabileceğiniz program kütüphanesi; yedekleme (JSON).
 
 Veriler tarayıcının yerel deposunda (localStorage) tutulur. Başka cihaza
 taşımak için Ayarlar → Yedekleme bölümünü kullanın.
 
-> Öğrenme çıktısı kodları ve ifadeleri programın yapısına göre hazırlanmış bir
-> çalışma listesidir; resmî program metniyle karşılaştırıp Ayarlar'dan düzenleyin.
+## Kaynak
+
+Tüm kodlar ve ifadeler MEB Türkiye Yüzyılı Maarif Modeli Okul Öncesi Eğitim
+Programı'ndan alınmıştır (tymm.meb.gov.tr):
+
+- **EK-1** alan tabloları: 36-48, 48-60 ve 60-72 ay için tüm öğrenme çıktıları ve
+  süreç bileşenleri (ör. `MAB6. Sayma → MAB.1. → MAB.1.e.`)
+- **EK-5 / EK-6**: aylık ve günlük plan şablonları; bölüm adları ve sırası bu
+  şablonlarla aynıdır
+- **EK-7** kavram listesi, **EK-8** belirli gün ve haftalar, **EK-15** aylık
+  eğitim planı kontrol çizelgesi
+- Eğilimler (E1.1…), sosyal-duygusal öğrenme becerileri (SDB…), değerler (D1.1…)
+  ve okuryazarlık becerileri (OB…) programdaki numaralarıyla
+- Genel metinler, [60-72 ay Mayıs aylık plan örneği](https://tymm.meb.gov.tr/okul-oncesi/unite/481)
+  ve [60-72 ay günlük plan örneği](https://tymm.meb.gov.tr/okul-oncesi/unite/484) esas alınarak yazılmıştır
+
+Etkinlik adımlarının sonunda, MEB örneğinde olduğu gibi ilgili kodlar parantez
+içinde yer alır, ör. `(MAB.1.e, SDB2.2)`. Süreç bileşeni harfleri yaş grubuna göre
+farklı anlam taşıdığı için (ör. MAB.1.b) etkinlikler seçilen yaş grubunun kendi
+bileşenlerine çevrilir; karşılığı olmayan kod o yaş için gösterilmez.
