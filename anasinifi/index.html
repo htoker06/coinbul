@@ -308,6 +308,21 @@ table.ctrl{border-collapse:collapse;font-size:.82rem;min-width:760px;width:100%}
 .ek2-body textarea{border:1.5px dashed var(--line);border-radius:10px;min-height:60px}
 .anek-card{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--c-ta);border-radius:var(--r);padding:12px 14px;display:grid;gap:8px}
 @media (max-width:900px){.anek-grid{grid-template-columns:minmax(0,1fr)}.nav button{font-size:.56rem}.ek2-row{grid-template-columns:minmax(0,1fr)}.ek2-row>span{border-right:0;padding-bottom:0}}
+/* ---------- Sınıf seçici ve rapor ---------- */
+.class-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 8px 6px 16px;align-self:flex-start;max-width:100%}
+.class-bar select{width:auto;max-width:100%;border-radius:999px;padding:5px 10px;font-weight:700}
+.age-pill{font-size:.75rem;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--accent)}
+.age-pill[data-age="36-48 ay"]{background:color-mix(in srgb,var(--c-ta) 16%,var(--paper));color:var(--c-ta)}
+.age-pill[data-age="48-60 ay"]{background:color-mix(in srgb,var(--c-fa) 16%,var(--paper));color:var(--c-fa)}
+.rap-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line)}
+.rap-t{font-size:.9rem;min-width:0}
+.rap-b{display:flex;flex-wrap:wrap;gap:4px}
+.rap-b .chip{cursor:pointer}
+.rap-b .st-g[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.rap-b .st-d[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);color:#1C2840}
+.rap-b .st-s[aria-pressed="true"]{background:var(--c-ta);border-color:var(--c-ta);color:#fff}
+button.chip.olcut{text-align:left;font-weight:600;white-space:normal}
+@media (max-width:640px){.rap-row{grid-template-columns:minmax(0,1fr)}.class-bar{border-radius:14px}}
 </style>
 </head>
 <body>
@@ -895,7 +910,7 @@ const AILE = th => [
 /* ---------- Üretici ---------- */
 /* Şablon kodları 60-72 ay programına göre yazıldı. Süreç bileşeni harfleri yaşa göre
    farklı anlam taşıdığı için diğer yaşlarda karşılık gelen bileşene çevrilir; karşılığı yoksa çıkarılır. */
-const AGEMAP={"48-60 ay":{"FAB.1.a":"FAB.1.a","FAB.1.c":"FAB.1.c","FAB.1.d":"FAB.1.d","FAB.1.e":"FAB.1.e","FAB.2.a":"FAB.2.a","FAB.2.b":"FAB.2.b","FAB.2.c":"FAB.2.b","FAB.3.c":"FAB.3.b","FAB.3.ç":"FAB.3.a","FAB.4.a":"FAB.4.a","FAB.4.b":"FAB.4.b","FAB.7.a":"FAB.7.a","FAB.7.b":"FAB.7.b","FAB.7.c":"FAB.7.c","HSAB.1.a":"HSAB.1.a","HSAB.1.b":"HSAB.1.d","HSAB.1.c":"HSAB.1.e","HSAB.2.a":"HSAB.2.a","HSAB.2.b":"HSAB.2.b","HSAB.2.c":"HSAB.2.c","HSAB.3.a":"HSAB.3.b","HSAB.3.b":"HSAB.3.a","HSAB.4.a":"HSAB.4.a","HSAB.4.b":"HSAB.4.b","HSAB.5.a":"HSAB.5.a","HSAB.6.a":null,"HSAB.6.b":"HSAB.6.c","HSAB.7.a":"HSAB.7.b","HSAB.8.a":"HSAB.8.a","HSAB.8.b":"HSAB.8.b","HSAB.9.a":"HSAB.9.a","HSAB.9.b":null,"HSAB.9.c":"HSAB.9.b","MAB.1.a":"MAB.1.a","MAB.1.b":"MAB.1.b","MAB.1.d":null,"MAB.1.e":null,"MAB.1.f":"MAB.1.d","MAB.1.ç":"MAB.1.ç","MAB.10.a":"MAB.10.a","MAB.10.b":"MAB.10.b","MAB.11.a":"MAB.11.a","MAB.11.b":"MAB.11.a","MAB.11.ç":"MAB.11.c","MAB.12.a":"MAB.12.a","MAB.12.b":"MAB.12.b","MAB.2.a":"MAB.2.a","MAB.3.b":"MAB.3.b","MAB.3.c":"MAB.3.c","MAB.3.d":"MAB.3.ç","MAB.4.a":"MAB.4.a","MAB.4.b":"MAB.4.b","MAB.4.c":"MAB.4.c","MAB.4.d":"MAB.4.d","MAB.4.ç":"MAB.4.ç","MAB.5.b":"MAB.5.b","MAB.7.a":"MAB.7.a","MAB.7.b":"MAB.7.b","MAB.7.c":"MAB.7.b","MAB.8.a":"MAB.8.a","MAB.8.c":"MAB.8.b","MAB.9.a":"MAB.9.a","MAB.9.d":"MAB.9.d","MAB.9.f":"MAB.9.e","MDB.1.b":"MDB.1.b","MDB.2.a":"MDB.2.a","MDB.2.b":"MDB.2.b","MDB.2.c":"MDB.2.c","MDB.3.a":"MDB.3.a","MDB.3.b":"MDB.3.b","MDB.3.c":"MDB.3.c","MHB.1.a":"MHB.1.a","MHB.1.b":"MHB.1.b","MHB.2.a":"MHB.2.a","MHB.2.b":"MHB.2.b","MSB.1.a":"MSB.1.a","MSB.1.c":"MSB.1.c","MSB.1.ç":"MSB.1.ç","MSB.2.a":"MSB.2.a","MSB.2.b":"MSB.2.b","MÇB.1.a":"MÇB.1.a","MÇB.1.b":"MÇB.1.b","MÇB.1.c":"MÇB.1.c","MÇB.1.d":"MÇB.1.d","MÇB.1.ç":"MÇB.1.ç","MÇB.2.a":"MÇB.2.a","MÇB.2.b":"MÇB.2.b","SAB.1.a":"SAB.1.a","SAB.1.b":"SAB.1.b","SAB.1.c":"SAB.1.c","SAB.11.c":null,"SAB.14.a":"SAB.14.a","SAB.14.b":"SAB.14.b","SAB.2.a":"SAB.2.a","SAB.2.b":"SAB.2.b","SNAB.2.a":"SNAB.2.a","SNAB.2.b":"SNAB.2.b","SNAB.2.c":"SNAB.2.c","SNAB.2.d":"SNAB.2.ç","SNAB.2.e":"SNAB.2.d","SNAB.2.f":null,"SNAB.2.ç":"SNAB.3.a","SNAB.3.b":"SNAB.3.b","SNAB.4.a":"SNAB.4.a","SNAB.4.b":"SNAB.4.b","SNAB.4.c":null,"SNAB.4.d":"SNAB.4.ç","SNAB.4.ç":"SNAB.4.c","TADB.1.b":"TADB.1.b","TAEOB.1.a":"TAEOB.1.a","TAEOB.1.c":"TAEOB.1.c","TAEOB.1.ç":"TAEOB.1.ç","TAEOB.2.c":"TAEOB.2.c","TAEOB.2.d":"TAEOB.2.d","TAEOB.2.e":"TAEOB.2.e","TAEOB.2.f":"TAEOB.2.f","TAEOB.2.ç":"TAEOB.2.ç","TAKB.1.a":"TAKB.1.a","TAKB.1.b":"TAKB.1.b","TAKB.1.c":"TAKB.1.c","TAKB.2.a":"TAKB.2.a","TAKB.2.b":"TAKB.2.b","TAKB.2.d":"TAKB.2.d","TAKB.2.e":null,"TAKB.2.g":"TAKB.2.ğ","TAKB.3.a":"TAKB.3.a","TAKB.3.b":"TAKB.3.b","TAKB.3.c":"TAKB.3.c","TAKB.3.e":"TAKB.3.e","TAKB.3.ç":"TAKB.3.ç","TAKB.4.a":"TAKB.4.a","TAKB.4.c":"TAKB.4.b","TAOB.1.a":"TAOB.1.a","TAOB.2.a":"TAOB.2.a","TAOB.2.b":"TAOB.2.b","TAOB.2.f":null,"TAOB.3.a":"TAOB.3.a","TAOB.3.b":"TAOB.3.b","MAB.9.ç":"MAB.9.ç"},"36-48 ay":{"FAB.1.a":"FAB.1.a","FAB.1.c":"FAB.1.b","FAB.1.d":"FAB.1.c","FAB.1.e":"FAB.1.b","FAB.2.a":"FAB.2.a","FAB.2.b":"FAB.2.b","FAB.2.c":"FAB.2.ç","FAB.3.c":"FAB.3.a","FAB.3.ç":"FAB.3.a","FAB.7.a":"FAB.7.b","FAB.7.b":"FAB.7.a","FAB.7.c":null,"HSAB.1.a":"HSAB.1.a","HSAB.1.b":"HSAB.1.ç","HSAB.1.c":"HSAB.1.d","HSAB.2.a":"HSAB.2.b","HSAB.2.b":"HSAB.2.a","HSAB.2.c":null,"HSAB.3.a":"HSAB.3.a","HSAB.3.b":"HSAB.3.b","HSAB.4.a":"HSAB.4.b","HSAB.4.b":"HSAB.4.a","HSAB.5.a":"HSAB.5.b","HSAB.6.a":null,"HSAB.6.b":"HSAB.6.b","HSAB.7.a":"HSAB.7.b","HSAB.8.a":"HSAB.8.a","HSAB.8.b":"HSAB.8.b","HSAB.9.a":"HSAB.9.a","HSAB.9.b":null,"HSAB.9.c":"HSAB.9.b","MAB.1.a":"MAB.1.a","MAB.1.b":null,"MAB.1.d":null,"MAB.1.e":null,"MAB.1.f":null,"MAB.1.ç":"MAB.1.b","MAB.10.a":"MAB.10.b","MAB.10.b":"MAB.10.a","MAB.2.a":"MAB.2.a","MAB.4.a":null,"MAB.4.b":"MAB.4.b","MAB.4.c":"MAB.4.a","MAB.4.d":"MAB.4.c","MAB.4.ç":null,"MAB.7.a":null,"MAB.7.b":"MAB.7.a","MAB.7.c":null,"MAB.9.a":"MAB.9.a","MAB.9.d":null,"MAB.9.f":null,"MDB.1.b":"MDB.1.b","MDB.2.a":"MDB.2.a","MDB.2.b":"MDB.2.b","MDB.2.c":null,"MDB.3.a":"MDB.3.a","MDB.3.b":"MDB.3.b","MDB.3.c":"MDB.3.b","MHB.1.a":"MHB.1.a","MHB.1.b":"MHB.1.a","MHB.2.a":"MHB.2.a","MHB.2.b":"MHB.2.b","MSB.1.a":"MSB.1.a","MSB.1.c":"MSB.1.c","MSB.1.ç":"MSB.1.c","MSB.2.a":"MSB.2.a","MSB.2.b":null,"MÇB.1.a":"MÇB.1.a","MÇB.1.b":"MÇB.1.b","MÇB.1.c":"MÇB.1.b","MÇB.1.d":"MÇB.1.b","MÇB.1.ç":"MÇB.1.b","SAB.1.a":"SAB.1.a","SAB.1.b":null,"SAB.1.c":"SAB.1.b","SAB.14.a":"SAB.14.a","SAB.14.b":"SAB.14.b","SAB.2.a":"SAB.2.a","SAB.2.b":null,"SNAB.2.a":"SNAB.2.a","SNAB.2.b":"SNAB.2.b","SNAB.2.c":"SNAB.2.c","SNAB.2.d":null,"SNAB.2.e":null,"SNAB.2.f":null,"SNAB.2.ç":"SNAB.3.a","SNAB.3.b":null,"SNAB.4.a":"SNAB.4.a","SNAB.4.b":"SNAB.4.b","SNAB.4.c":null,"SNAB.4.d":"SNAB.4.ç","SNAB.4.ç":"SNAB.4.c","TADB.1.b":"TADB.1.b","TAEOB.1.a":"TAEOB.1.a","TAEOB.1.c":null,"TAEOB.1.ç":null,"TAEOB.2.c":"TAEOB.2.b","TAEOB.2.d":null,"TAEOB.2.e":null,"TAEOB.2.f":null,"TAEOB.2.ç":null,"TAKB.1.a":"TAKB.1.a","TAKB.1.b":null,"TAKB.1.c":"TAKB.1.b","TAKB.2.a":"TAKB.2.a","TAKB.2.b":"TAKB.2.b","TAKB.2.d":null,"TAKB.2.e":null,"TAKB.2.g":null,"TAKB.3.a":"TAKB.3.a","TAKB.3.b":"TAKB.3.b","TAKB.3.c":"TAKB.3.c","TAKB.3.e":"TAKB.3.e","TAKB.3.ç":"TAKB.3.ç","TAKB.4.a":"TAKB.4.a","TAKB.4.c":null,"TAOB.1.a":"TAOB.1.a","TAOB.2.a":"TAOB.2.a","TAOB.2.b":"TAOB.2.b","TAOB.2.f":null,"TAOB.3.a":"TAOB.3.a","TAOB.3.b":null,"MAB.9.ç":"MAB.9.ç"}};
+const AGEMAP={"48-60 ay":{"FAB.1.a":"FAB.1.a","FAB.1.c":"FAB.1.c","FAB.1.d":"FAB.1.d","FAB.1.e":"FAB.1.e","FAB.2.a":"FAB.2.a","FAB.2.b":"FAB.2.b","FAB.2.c":"FAB.2.b","FAB.3.c":"FAB.3.b","FAB.3.ç":"FAB.3.a","FAB.4.a":"FAB.4.a","FAB.4.b":"FAB.4.b","FAB.7.a":"FAB.7.a","FAB.7.b":"FAB.7.b","FAB.7.c":"FAB.7.c","HSAB.1.a":"HSAB.1.a","HSAB.1.b":"HSAB.1.d","HSAB.1.c":"HSAB.1.e","HSAB.2.a":"HSAB.2.a","HSAB.2.b":"HSAB.2.b","HSAB.2.c":"HSAB.2.c","HSAB.3.a":"HSAB.3.b","HSAB.3.b":"HSAB.3.a","HSAB.4.a":"HSAB.4.a","HSAB.4.b":"HSAB.4.b","HSAB.5.a":"HSAB.5.a","HSAB.6.a":null,"HSAB.6.b":"HSAB.6.c","HSAB.7.a":"HSAB.7.b","HSAB.8.a":"HSAB.8.a","HSAB.8.b":"HSAB.8.b","HSAB.9.a":"HSAB.9.a","HSAB.9.b":null,"HSAB.9.c":"HSAB.9.b","MAB.1.a":"MAB.1.a","MAB.1.b":"MAB.1.b","MAB.1.d":null,"MAB.1.e":null,"MAB.1.f":"MAB.1.d","MAB.1.ç":"MAB.1.ç","MAB.10.a":"MAB.10.a","MAB.10.b":"MAB.10.b","MAB.11.a":"MAB.11.a","MAB.11.b":"MAB.11.a","MAB.11.ç":"MAB.11.c","MAB.12.a":"MAB.12.a","MAB.12.b":"MAB.12.b","MAB.2.a":"MAB.2.a","MAB.3.b":"MAB.3.b","MAB.3.c":"MAB.3.c","MAB.3.d":"MAB.3.ç","MAB.4.a":"MAB.4.a","MAB.4.b":"MAB.4.b","MAB.4.c":"MAB.4.c","MAB.4.d":"MAB.4.d","MAB.4.ç":"MAB.4.ç","MAB.5.b":"MAB.5.b","MAB.7.a":"MAB.7.a","MAB.7.b":"MAB.7.b","MAB.7.c":"MAB.7.b","MAB.8.a":"MAB.8.a","MAB.8.c":"MAB.8.b","MAB.9.a":"MAB.9.a","MAB.9.d":"MAB.9.d","MAB.9.f":"MAB.9.e","MDB.1.b":"MDB.1.b","MDB.2.a":"MDB.2.a","MDB.2.b":"MDB.2.b","MDB.2.c":"MDB.2.c","MDB.3.a":"MDB.3.a","MDB.3.b":"MDB.3.b","MDB.3.c":"MDB.3.c","MHB.1.a":"MHB.1.a","MHB.1.b":"MHB.1.b","MHB.2.a":"MHB.2.a","MHB.2.b":"MHB.2.b","MSB.1.a":"MSB.1.a","MSB.1.c":"MSB.1.c","MSB.1.ç":"MSB.1.ç","MSB.2.a":"MSB.2.a","MSB.2.b":"MSB.2.b","MÇB.1.a":"MÇB.1.a","MÇB.1.b":"MÇB.1.b","MÇB.1.c":"MÇB.1.c","MÇB.1.d":"MÇB.1.d","MÇB.1.ç":"MÇB.1.ç","MÇB.2.a":"MÇB.2.a","MÇB.2.b":"MÇB.2.b","SAB.1.a":"SAB.1.a","SAB.1.b":"SAB.1.b","SAB.1.c":"SAB.1.c","SAB.11.c":null,"SAB.14.a":"SAB.14.a","SAB.14.b":"SAB.14.b","SAB.2.a":"SAB.2.a","SAB.2.b":"SAB.2.b","SNAB.2.a":"SNAB.2.a","SNAB.2.b":"SNAB.2.b","SNAB.2.c":"SNAB.2.c","SNAB.2.d":"SNAB.2.ç","SNAB.2.e":"SNAB.2.d","SNAB.2.f":null,"SNAB.2.ç":"SNAB.3.a","SNAB.3.b":"SNAB.3.b","SNAB.4.a":"SNAB.4.a","SNAB.4.b":"SNAB.4.b","SNAB.4.c":null,"SNAB.4.d":"SNAB.4.ç","SNAB.4.ç":"SNAB.4.c","TADB.1.b":"TADB.1.b","TAEOB.1.a":"TAEOB.1.a","TAEOB.1.c":"TAEOB.1.c","TAEOB.1.ç":"TAEOB.1.ç","TAEOB.2.c":"TAEOB.2.c","TAEOB.2.d":"TAEOB.2.d","TAEOB.2.e":"TAEOB.2.e","TAEOB.2.f":"TAEOB.2.f","TAEOB.2.ç":"TAEOB.2.ç","TAKB.1.a":"TAKB.1.a","TAKB.1.b":"TAKB.1.b","TAKB.1.c":"TAKB.1.c","TAKB.2.a":"TAKB.2.a","TAKB.2.b":"TAKB.2.b","TAKB.2.d":"TAKB.2.d","TAKB.2.e":null,"TAKB.2.g":"TAKB.2.ğ","TAKB.3.a":"TAKB.3.a","TAKB.3.b":"TAKB.3.b","TAKB.3.c":"TAKB.3.c","TAKB.3.e":"TAKB.3.e","TAKB.3.ç":"TAKB.3.ç","TAKB.4.a":"TAKB.4.a","TAKB.4.c":"TAKB.4.b","TAOB.1.a":"TAOB.1.a","TAOB.2.a":"TAOB.2.a","TAOB.2.b":"TAOB.2.b","TAOB.2.f":null,"TAOB.3.a":"TAOB.3.a","TAOB.3.b":"TAOB.3.b","MAB.9.ç":"MAB.9.ç","FAB.1.b":"FAB.1.b","TADB.2.b":"TADB.2.b","TADB.4.a":"TADB.4.a"},"36-48 ay":{"FAB.1.a":"FAB.1.a","FAB.1.c":"FAB.1.b","FAB.1.d":"FAB.1.c","FAB.1.e":"FAB.1.b","FAB.2.a":"FAB.2.a","FAB.2.b":"FAB.2.b","FAB.2.c":"FAB.2.ç","FAB.3.c":"FAB.3.a","FAB.3.ç":"FAB.3.a","FAB.7.a":"FAB.7.b","FAB.7.b":"FAB.7.a","FAB.7.c":null,"HSAB.1.a":"HSAB.1.a","HSAB.1.b":"HSAB.1.ç","HSAB.1.c":"HSAB.1.d","HSAB.2.a":"HSAB.2.b","HSAB.2.b":"HSAB.2.a","HSAB.2.c":null,"HSAB.3.a":"HSAB.3.a","HSAB.3.b":"HSAB.3.b","HSAB.4.a":"HSAB.4.b","HSAB.4.b":"HSAB.4.a","HSAB.5.a":"HSAB.5.b","HSAB.6.a":null,"HSAB.6.b":"HSAB.6.b","HSAB.7.a":"HSAB.7.b","HSAB.8.a":"HSAB.8.a","HSAB.8.b":"HSAB.8.b","HSAB.9.a":"HSAB.9.a","HSAB.9.b":null,"HSAB.9.c":"HSAB.9.b","MAB.1.a":"MAB.1.a","MAB.1.b":null,"MAB.1.d":null,"MAB.1.e":null,"MAB.1.f":null,"MAB.1.ç":"MAB.1.b","MAB.10.a":"MAB.10.b","MAB.10.b":"MAB.10.a","MAB.2.a":"MAB.2.a","MAB.4.a":null,"MAB.4.b":"MAB.4.b","MAB.4.c":"MAB.4.a","MAB.4.d":"MAB.4.c","MAB.4.ç":null,"MAB.7.a":null,"MAB.7.b":"MAB.7.a","MAB.7.c":null,"MAB.9.a":"MAB.9.a","MAB.9.d":null,"MAB.9.f":null,"MDB.1.b":"MDB.1.b","MDB.2.a":"MDB.2.a","MDB.2.b":"MDB.2.b","MDB.2.c":null,"MDB.3.a":"MDB.3.a","MDB.3.b":"MDB.3.b","MDB.3.c":"MDB.3.b","MHB.1.a":"MHB.1.a","MHB.1.b":"MHB.1.a","MHB.2.a":"MHB.2.a","MHB.2.b":"MHB.2.b","MSB.1.a":"MSB.1.a","MSB.1.c":"MSB.1.c","MSB.1.ç":"MSB.1.c","MSB.2.a":"MSB.2.a","MSB.2.b":null,"MÇB.1.a":"MÇB.1.a","MÇB.1.b":"MÇB.1.b","MÇB.1.c":"MÇB.1.b","MÇB.1.d":"MÇB.1.b","MÇB.1.ç":"MÇB.1.b","SAB.1.a":"SAB.1.a","SAB.1.b":null,"SAB.1.c":"SAB.1.b","SAB.14.a":"SAB.14.a","SAB.14.b":"SAB.14.b","SAB.2.a":"SAB.2.a","SAB.2.b":null,"SNAB.2.a":"SNAB.2.a","SNAB.2.b":"SNAB.2.b","SNAB.2.c":"SNAB.2.c","SNAB.2.d":null,"SNAB.2.e":null,"SNAB.2.f":null,"SNAB.2.ç":"SNAB.3.a","SNAB.3.b":null,"SNAB.4.a":"SNAB.4.a","SNAB.4.b":"SNAB.4.b","SNAB.4.c":null,"SNAB.4.d":"SNAB.4.ç","SNAB.4.ç":"SNAB.4.c","TADB.1.b":"TADB.1.b","TAEOB.1.a":"TAEOB.1.a","TAEOB.1.c":null,"TAEOB.1.ç":null,"TAEOB.2.c":"TAEOB.2.b","TAEOB.2.d":null,"TAEOB.2.e":null,"TAEOB.2.f":null,"TAEOB.2.ç":null,"TAKB.1.a":"TAKB.1.a","TAKB.1.b":null,"TAKB.1.c":"TAKB.1.b","TAKB.2.a":"TAKB.2.a","TAKB.2.b":"TAKB.2.b","TAKB.2.d":null,"TAKB.2.e":null,"TAKB.2.g":null,"TAKB.3.a":"TAKB.3.a","TAKB.3.b":"TAKB.3.b","TAKB.3.c":"TAKB.3.c","TAKB.3.e":"TAKB.3.e","TAKB.3.ç":"TAKB.3.ç","TAKB.4.a":"TAKB.4.a","TAKB.4.c":null,"TAOB.1.a":"TAOB.1.a","TAOB.2.a":"TAOB.2.a","TAOB.2.b":"TAOB.2.b","TAOB.2.f":null,"TAOB.3.a":"TAOB.3.a","TAOB.3.b":null,"MAB.9.ç":"MAB.9.ç","FAB.1.b":"FAB.1.b","TADB.2.b":"TADB.2.b","TADB.4.a":"TADB.4.a"}};
 function mapAge(age,s){
   if(age==='60-72 ay') return s; const m=AGEMAP[age]||{};
   return s.replace(/\{([^}]+)\}/g,(x,c)=>{const l=c.split(/\s*,\s*/).map(k=>codeKind(k)==='s'?(m[k]||''):k).filter(Boolean);return l.length?`{${l.join(', ')}}`:''});
@@ -988,7 +1003,7 @@ function newDay(dateK, withActs=true){
   const wi=weekInfo(dateK); const th=TEMA[wi.w.tema]||TEMA.okul; const d=pdate(dateK);
   const rot=ROT[Math.max(0,Math.min(4,(d.getDay()+6)%7))];
   const acts = withActs ? rot.slice(0,2).map(a=>generate({alan:a,tema:wi.w.tema})) : [];
-  return { tema:wi.w.tema, haftaBaslik:wi.w.baslik, acts, flow:flowDefaults(th), extra:[],
+  return { tema:wi.w.tema, haftaBaslik:wi.w.baslik, acts, flow:flowFor(th,AGE()), extra:[],
     ortamlar:`Etkinlik öncesinde gerekli materyaller hazırlanır ve ${th.ad} temalı görseller panoya yerleştirilir. Çocukların güvenli biçimde hareket edebilecekleri geniş bir alan oluşturulur.`,
     degEk:'', toplum:`${th.ad} ile ilgili bir meslek grubundan ya da yakın çevreden bir konuk sınıfa davet edilebilir; park, müze, kütüphane gibi uygun bir öğrenme ortamına gezi planlanabilir.`,
     aileEk:'', notlar:'' };
@@ -1009,7 +1024,8 @@ function newMonth(key){
     sel.ob=sortCodes(top(all.filter(c=>codeKind(c)==='ob'),4));
     sel.kv=uniq(mo.weeks.flatMap(w=>(TEMA[w.tema]||TEMA.okul).k));
   }
-  return {sel, uyg:AY_METIN.uyg, zen:AY_METIN.zen, des:AY_METIN.des, aile:AY_METIN.aile, kanit:AY_METIN.kanit,
+  const eyl=key.endsWith('-09');
+  return {sel, uyg:AY_METIN.uyg, zen:AY_METIN.zen, des:AY_METIN.des, aile:eyl?EYLUL_AILE:AY_METIN.aile, kanit:eyl?EYLUL_KANIT:AY_METIN.kanit,
     cocuk:AY_METIN.cocuk, program:AY_METIN.program, ogretmen:AY_METIN.ogretmen, yansitma:''};
 }
 function getDay(k){ if(!S.daily[k]){S.daily[k]=newDay(k,false);} return S.daily[k]; }
@@ -1022,8 +1038,9 @@ function dayCodes(p){
 /* ---------- İlk kurulum ---------- */
 function seed(){
   const t=new Date(); const sy = t.getMonth()>=8 ? t.getFullYear() : t.getFullYear()-1;
-  S={v:2,settings:{ogretmen:'',okul:'',sinif:'Anasınıfı A',yas:'60-72 ay',baslangic:sy},year:yearTemplate(sy),monthly:{},daily:{},bank:[],gen:[],anek:[],cocuklar:[],
+  S={v:2,settings:{ogretmen:'',okul:'',sinif:'Anasınıfı A',yas:'60-72 ay',baslangic:sy},year:yearFor(sy,'60-72 ay'),monthly:{},daily:{},bank:[],gen:[],anek:[],cocuklar:[],
      ui:{view:'home',day:dkey(t),month:mkey(t),gen:{alan:'KARMA',tema:null,adet:6,yas:'60-72 ay',ortam:'Sınıf'}}};
+  S.settings.sinif='Anasınıfı (60-72 ay)'; migrateClasses();
   const d=new Date(t); while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()+1);
   S.ui.day=dkey(d); S.daily[S.ui.day]=newDay(S.ui.day,true);
   const wi=weekInfo(S.ui.day); S.ui.gen.tema=wi.w.tema;
@@ -1051,12 +1068,12 @@ const IC = {
   f_beslen:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10c-6-3-11 1-10 8 1 6 5 10 10 8 5 2 9-2 10-8 1-7-4-11-10-8z"/><path d="M16 10c0-3 1-5 4-6"/><path d="M16 10c-2-2-4-2-6-1"/></svg>',
   f_etk:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M16 4l3.5 7.2 7.9 1.1-5.7 5.6 1.4 7.8L16 22l-7.1 3.7 1.4-7.8-5.7-5.6 7.9-1.1z"/></svg>'
 };
-const NAV=[['home','Ana Sayfa','home'],['year','Yıllık Plan','year'],['month','Aylık Plan','month'],['day','Günlük Plan','day'],['gen','Etkinlik Üret','gen'],['bank','Etkinlik Bankam','bank'],['anek','Anekdot','anek'],['set','Ayarlar','set']];
+const NAV=[['home','Ana Sayfa','home'],['year','Yıllık Plan','year'],['month','Aylık Plan','month'],['day','Günlük Plan','day'],['gen','Etkinlik Üret','gen'],['bank','Etkinlik Bankam','bank'],['anek','Değerlendirme','anek'],['set','Ayarlar','set']];
 
 function renderNav(){
   $('#nav').innerHTML=NAV.map(([k,ad,ic])=>`<button data-go="${k}" ${S.ui.view===k?'aria-current="page"':''}>${IC[ic]}<span>${ad}</span></button>`).join('');
   const st=S.settings;
-  $('#side-foot').innerHTML=`<b>${esc(st.sinif||'Sınıfım')}</b><br>${esc(st.yas)} · ${st.baslangic}-${st.baslangic+1}`;
+  const cc=curClass(); $('#side-foot').innerHTML=`<b>${esc(cc?cc.ad:'Sınıfım')}</b><br>${esc(st.yas)} · ${st.baslangic}-${st.baslangic+1}`;
 }
 function hills(){return '<svg class="hills" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 Q 60 10 130 34 T 260 30 T 400 26 V60 H0z" fill="rgba(255,255,255,.18)"/><path d="M0 52 Q 90 30 190 48 T 400 44 V60 H0z" fill="rgba(255,255,255,.22)"/></svg>'}
 function floaters(ems){
@@ -1199,7 +1216,7 @@ function vMonth(){
     <div class="sec"><div class="sec-title"><span class="num">7</span><h3>Farklılaştırma</h3></div><dl class="kv"><dt>Zenginleştirme</dt><dd>${ta('m-zen','zen')}</dd><dt>Destekleme</dt><dd>${ta('m-des','des')}</dd></dl></div>
     <div class="sec"><div class="sec-title"><span class="num">8</span><h3>Aile ve Toplum Katılımı</h3></div>${ta('m-aile','aile')}</div>
     <div class="sec"><div class="sec-title"><span class="num">9</span><h3>Öğrenme Kanıtları (Değerlendirme)</h3></div>${ta('m-kanit','kanit')}
-      <dl class="kv"><dt>Çocuk Açısından</dt><dd>${ta('m-cocuk','cocuk')}</dd><dt>Program Açısından</dt><dd>${ta('m-program','program')}</dd><dt>Öğretmen Açısından</dt><dd>${ta('m-ogretmen','ogretmen')}</dd></dl></div>
+      <dl class="kv"><dt>Çocuk Açısından</dt><dd>${ta('m-cocuk','cocuk')}${olcutHTML('cocuk')}</dd><dt>Program Açısından</dt><dd>${ta('m-program','program')}${olcutHTML('program')}</dd><dt>Öğretmen Açısından</dt><dd>${ta('m-ogretmen','ogretmen')}${olcutHTML('ogretmen')}</dd></dl></div>
     <div class="sec"><div class="sec-title"><span class="num">10</span><h3>Öğretmen Yansıtmaları</h3></div>${ta('m-yan','yansitma','Ay sonunda planın uygulanmasına ilişkin düşünceleriniz…')}</div>
   </section>`;
 }
@@ -1244,7 +1261,7 @@ function vDay(){
     <div class="sec"><div class="sec-title"><span class="num">7</span><h3>Günü Değerlendirme</h3><span class="small muted">Öğrenme Kanıtları (Ölçme ve Değerlendirme)</span></div>
       <p class="small">Gün sonunda çocuklarla kısa bir değerlendirme çemberi oluşturulur. Çocukların gün içerisinde gerçekleştirdikleri etkinliklere ilişkin deneyimlerini, düşüncelerini ve duygularını paylaşmalarına fırsat verilir. Daha sonra aşağıdaki sorular sorularak günün değerlendirmesi yapılır.</p>
       <ul class="small" style="margin:0;padding-left:1.2em">${sorular.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
-      <p class="small">Çocukların verdikleri yanıtlar ve gün boyunca yapılan gözlemler çocuk, program ve öğretmen açısından değerlendirilerek sonraki öğrenme-öğretme uygulamaları planlanır.</p>
+      <p class="small">${DEG_KAPANIS()}</p>
       <div class="toolbar no-print"><button class="btn sm" data-do="anekfor">📝 Bu gün için anekdot kaydı ekle</button>${(S.anek||[]).filter(r=>r.tarih===k).length?`<span class="small muted">Bu güne ait ${(S.anek||[]).filter(r=>r.tarih===k).length} anekdot kaydı var</span>`:''}</div>
       <textarea id="d-deg" data-bind="day.degEk" placeholder="Ek değerlendirme notu: anekdot kayıtları, portfolyoya eklenen ürünler…">${esc(p.degEk)}</textarea></div>
     <div class="sec"><div class="sec-title"><span class="num">8</span><h3>Aile ve Toplum Katılımı</h3></div>
@@ -1285,10 +1302,11 @@ function vGen(){
 /* ---------- Banka ---------- */
 function vBank(){
   const f=S.ui.bankF||'ALL'; const q=(S.ui.bankQ||'').toLocaleLowerCase('tr');
-  const list=S.bank.filter(a=>(f==='ALL'||a.alan===f)&&(!q||(a.ad+' '+a.temaAd+' '+a.tur+' '+actCodes(a).join(' ')).toLocaleLowerCase('tr').includes(q)));
+  const yf=S.ui.bankY||'CUR'; const list=S.bank.filter(a=>(yf==='ALL'||a.yas===AGE())&&(f==='ALL'||a.alan===f)&&(!q||(a.ad+' '+a.temaAd+' '+a.tur+' '+actCodes(a).join(' ')).toLocaleLowerCase('tr').includes(q)));
   return `
   <div class="page-head"><div><span class="label">Etkinlik bankam</span><h1>Kaydettiğim Etkinlikler</h1><p class="muted">Ürettiğiniz ya da planlardan kaydettiğiniz etkinlikler burada durur. Kod ile de arayabilirsiniz (ör. MAB.1.e).</p></div></div>
   <section class="panel" style="display:grid;gap:12px">
+    <div class="alan-pick"><button data-do="bY" data-v="CUR" aria-pressed="${yf==='CUR'}" style="--ac:var(--accent)">Yalnızca ${esc(AGE())}</button><button data-do="bY" data-v="ALL" aria-pressed="${yf==='ALL'}" style="--ac:var(--accent)">Tüm yaş grupları</button></div>
     <label class="field"><span>Ara</span><input type="text" id="bq" value="${esc(S.ui.bankQ||'')}" placeholder="Etkinlik adı, tema, tür ya da kod…"></label>
     <div class="alan-pick"><button data-do="bf" data-v="ALL" aria-pressed="${f==='ALL'}" style="--ac:var(--accent)">Tümü (${S.bank.length})</button>${ALAN_KEYS.map(a=>`<button data-do="bf" data-v="${a}" aria-pressed="${f===a}" style="--ac:${ALAN[a].c}">${ALAN[a].em} ${ALAN[a].ad} (${S.bank.filter(x=>x.alan===a).length})</button>`).join('')}</div>
   </section>
@@ -1304,10 +1322,9 @@ function vSet(){
   <section class="panel grid g2">
     <label class="field"><span>Öğretmenin adı</span><input type="text" id="s-ogr" data-bind="set.ogretmen" value="${esc(st.ogretmen)}" placeholder="Ör. Ayşe Yılmaz"></label>
     <label class="field"><span>Okul adı</span><input type="text" id="s-okul" data-bind="set.okul" value="${esc(st.okul)}" placeholder="Ör. Atatürk İlkokulu Anasınıfı"></label>
-    <label class="field"><span>Sınıf</span><input type="text" id="s-sinif" data-bind="set.sinif" value="${esc(st.sinif)}"></label>
-    <label class="field"><span>Yaş grubu (ay)</span><select id="s-yas">${AGES.map(y=>`<option ${y===st.yas?'selected':''}>${y}</option>`).join('')}</select></label>
     <label class="field"><span>Eğitim yılı başlangıcı</span><select id="s-yil">${[2025,2026,2027,2028].map(y=>`<option value="${y}" ${y===st.baslangic?'selected':''}>${y}-${y+1}</option>`).join('')}</select></label>
   </section>
+  ${classSettingsHTML()}
   <section class="panel" style="display:grid;gap:12px">
     <h2>Program kütüphanesi</h2>
     <p class="note">Öğrenme çıktıları ve süreç bileşenleri, MEB Türkiye Yüzyılı Maarif Modeli Okul Öncesi Eğitim Programı’nın EK-1 alan tablolarından alınmıştır. Plan biçimi, programın EK-5 (aylık) ve EK-6 (günlük) şablonlarına ve <a href="https://tymm.meb.gov.tr/okul-oncesi/unite/481" target="_blank" rel="noopener">60-72 ay Mayıs aylık plan örneğine</a> ile <a href="https://tymm.meb.gov.tr/okul-oncesi/unite/484" target="_blank" rel="noopener">60-72 ay günlük plan örneğine</a> göre düzenlenmiştir.</p>
@@ -1423,7 +1440,8 @@ const wKavram = pairs => {const by={};pairs.forEach(p=>{const [k,v]=p.split('|')
 const wText = t => String(t||'').split(/\n{2,}/).map(s=>wp(wr(s))).join('')||wp('—');
 const wInfo = pairs => wtable(pairs.map(([k,v])=>[{c:wp(wr(k,{b:true}),{after:0}),fill:'EEF3FB',col:0},{c:wp(wr(v||''),{after:0}),col:1}]),[2700,7164]);
 
-function daySorular(p){ return uniq([...p.acts.flatMap(a=>a.soru.slice(0,2)),'Bugün en çok hangi etkinlikten hoşlandın? Neden?','Zorlandığın bir bölüm oldu mu? O sırada nasıl hissettin?','Etkinlikler sırasında arkadaşlarınla nasıl iş birliği yaptın?']); }
+function daySorular(p){ return sorularFor(p); }
+function daySorularOld(p){ return uniq([...p.acts.flatMap(a=>a.soru.slice(0,2)),'Bugün en çok hangi etkinlikten hoşlandın? Neden?','Zorlandığın bir bölüm oldu mu? O sırada nasıl hissettin?','Etkinlikler sırasında arkadaşlarınla nasıl iş birliği yaptın?']); }
 
 function docDay(k){
   const p=getDay(k); const st=S.settings; const age=AGE(); const cs=dayCodes(p); const acts=p.acts; const th=TEMA[p.tema]||TEMA.okul;
@@ -1442,7 +1460,7 @@ function docDay(k){
     b+=a.adim.map(s=>wbul(toPlain(s))).join(''); });
   b+=wh1('FARKLILAŞTIRMA')+wh2('Zenginleştirme')+(acts.map(a=>wp(a.zengin)).join('')||wp('—'))+wh2('Destekleme')+(acts.map(a=>wp(a.destek)).join('')||wp('—'));
   b+=wh1('GÜNÜ DEĞERLENDİRME')+wp('Gün sonunda çocuklarla kısa bir değerlendirme çemberi oluşturulur. Çocukların gün içerisinde gerçekleştirdikleri etkinliklere ilişkin deneyimlerini, düşüncelerini ve duygularını paylaşmalarına fırsat verilir. Daha sonra aşağıdaki sorular sorularak günün değerlendirmesi yapılır.')
-    +daySorular(p).map(s=>wbul(s)).join('')+wp('Çocukların verdikleri yanıtlar ve gün boyunca yapılan gözlemler çocuk, program ve öğretmen açısından değerlendirilerek sonraki öğrenme-öğretme uygulamaları planlanır.')+(p.degEk?wText(p.degEk):'');
+    +daySorular(p).map(s=>wbul(s)).join('')+wp(DEG_KAPANIS())+(p.degEk?wText(p.degEk):'');
   b+=wh1('AİLE VE TOPLUM KATILIMI')+wh2('Aile Katılımı')+uniq(acts.map(a=>a.aile)).map(x=>wp(x)).join('')+(p.aileEk?wText(p.aileEk):'')+wh2('Toplum Katılımı')+wText(p.toplum);
   if(p.notlar) b+=wh1('ÖĞRETMEN NOTU')+wText(p.notlar);
   return b;
@@ -1501,6 +1519,8 @@ async function exportWord(kind,arg){
     if(kind==='day'){body=docDay(arg);name=`gunluk-plan-${arg}.docx`;title=`Günlük Plan ${fmtLong(arg)}`;}
     else if(kind==='month'){body=docMonth(arg);name=`aylik-plan-${arg}.docx`;title=`Aylık Eğitim Planı ${arg}`;}
     else if(kind==='anek'){const r=S.anek.find(x=>x.id===arg);body=docAnek(r);name=`anekdot-${slug(r.cocuk)}-${r.tarih||''}.docx`;title='Anekdot Kayıt Formu';}
+    else if(kind==='rapor'){const c=rapCur();body=docRapor(c.child,c.dn);name=`beceri-edinim-${slug(c.child)}-${c.dn}-donem.docx`;title='Beceri Edinim Raporu Hazırlık Formu';}
+    else if(kind==='raporAll'){const c=rapCur();const ns=childNames();body=ns.map(n=>docRapor(n,c.dn)).join(wbr());name=`beceri-edinim-tum-cocuklar-${c.dn}-donem.docx`;title='Beceri Edinim Raporu Hazırlık Formları';}
     else if(kind==='anekAll'){const list=anekFiltered();body=list.map(docAnek).join(wbr());name=`anekdot-kayitlari-${slug(S.ui.anekF&&S.ui.anekF!=='ALL'?S.ui.anekF:'tum-cocuklar')}.docx`;title='Anekdot Kayıtları';}
     await saveFile(name,docxBlob(body,title));
   }catch(e){console.error(e);toast('Word dosyası oluşturulamadı');}
@@ -1554,6 +1574,220 @@ function vAnek(){
       <div class="toolbar"><button class="btn sm" data-do="aedit" data-id="${r.id}">Düzenle</button><button class="btn sm" data-do="word" data-kind="anek" data-id="${r.id}">📄 Word’e aktar</button><button class="btn sm ghost danger" data-do="adel" data-id="${r.id}">Sil</button></div>
       <div id="adel-${r.id}"></div></article>`}).join(''):`<div class="empty"><div class="em">📝</div><b>Henüz anekdot kaydı yok</b><span class="small">Soldaki formu doldurup "Kaydı ekle"ye dokunun. Kayıtlar yalnızca bu tarayıcıda saklanır.</span></div>`}
   </section></div>`;
+}
+
+
+/* =========================================================
+   YAŞ GRUPLARI (36-48 / 48-60 / 60-72 ay)
+   Her sınıf (yaş grubu) kendi yıllık, aylık, günlük planlarını,
+   anekdot kayıtlarını, çocuk listesini ve raporlarını taşır.
+   ========================================================= */
+TEMA.renkler = {ad:'Renkler ve Şekiller',c:'#D24C8E',em:['🔴','🟡','🔵','🟢','🔺','⭕'],n:[['kırmızı top','🔴'],['sarı yıldız','⭐'],['mavi kova','🪣'],['yeşil yaprak','🍃'],['turuncu','🍊'],['mor üzüm','🍇']],k:['Renk|Kırmızı','Renk|Sarı','Renk|Mavi','Geometrik Şekil|Daire','Miktar|Az-Çok'],s:['renk','boya','gökkuşağı','çizme','fırça'],soru:'En sevdiğin renk hangisi?',t:['zıplayan kırmızı top','süzülen mavi balon','dönen sarı güneş','salınan yeşil yaprak'],deney:'kromatografi',eser:'kandinsky',kat:'renk'};
+if(!TEMA_KEYS.includes('renkler')) TEMA_KEYS.splice(1,0,'renkler');
+
+/* Küçük yaş grupları için ek etkinlikler (MEB 36-48 ve 48-60 ay günlük plan örneklerinden esinlenerek) */
+T.TA.push(c=>({ad:`Resimli Öykü Saati: ${c.th.ad}`,tur:'Resimli öykü / Görsel okuma',grup:'Büyük Grup',mat:['kutu',c.o0,c.o1,'kart'],
+  adim:[`Çocukların dikkati, içinde ${c.n0} ve ${c.n1} gibi nesnelerin bulunduğu kutuya çekilir; "Bu ne? Hangi renk?" soruları yöneltilir {E1.1}.`,
+    `${c.th.ad} ile ilgili resimli bir öykü kitabının kapağı gösterilir. "Kapakta neler görüyorsunuz?" ve "Sizce öyküde neler olacak?" soruları yöneltilir; çocukların kapağı incelemeleri desteklenir {TAOB.1.a}{TAOB.2.b}{OB4}.`,
+    'Öykü okunurken çocukların dinlemeleri ve görselleri izlemeleri desteklenir {TADB.1.b}{E3.2}. Önemli sayfalarda durularak "Burada ne görüyorsun?" diye sorulur; sözel cevap vermek istemeyen çocukların görseli göstermelerine fırsat verilir {TAKB.1.a}.',
+    'Yeni bir olaydan önce "Sence biraz sonra ne olabilir?" sorusu yöneltilir; tahminler sonraki sayfayla karşılaştırılır {TADB.2.b}.',
+    'Öykü bitince "En çok hangi bölümü beğendin?" sorusuyla çocuklar duygularını paylaşır; sıralarını bekleyerek arkadaşlarını dinlemeleri desteklenir {TADB.4.a}{SDB2.1}{D12.1}.'],
+  soru:['Öyküde neler oldu?','En çok hangi resmi beğendin?','Sen olsaydın ne yapardın?'],
+  destek:'Öykü kısa tutulabilir; sorular "Bu hangi renk?", "… nerede?" gibi tek aşamalı sorularla sınırlandırılabilir.',
+  zengin:'Çocuklar öykünün sonunu değiştirerek yeniden anlatabilir.'}));
+T.HSA.push(c=>({ad:'Renkli Toplar',tur:'Hareket oyunu',grup:'Büyük Grup',ortam:'Salon / bahçe',mat:['top','sepet','bant','muzik'],
+  adim:['Etkinlik alanının farklı bölümlerine kırmızı, sarı ve mavi renk alanları yerleştirilir; aynı renklerdeki toplar bir sepette hazırlanır {E2.5}.',
+    'Müzik çalarken çocuklar alanda yürür, koşar ve zıplar; arkadaşlarına çarpmadan hareket etmeleri hatırlatılır {HSAB.1.a}{HSAB.5.a}.',
+    'Müzik durduğunda her çocuk sepetten bir top alır ve topunun rengindeki alana götürür {MAB.4.d}{HSAB.1.c}.',
+    'Her alandaki toplar birlikte sayılır; "Hangi renkte daha çok top var?" diye sorulur {MAB.1.ç}.',
+    'Oyun sonunda toplar birlikte sepete toplanır {D16.1}.'],
+  soru:['Senin topun hangi renkti?','Hangi renkte daha çok top vardı?','Koşarken nelere dikkat ettin?'],
+  destek:'Renk sayısı ikiyle sınırlandırılabilir; daha büyük toplar ve birbirine yakın renk alanları kullanılabilir.',
+  zengin:'İkinci turda çocuklar farklı renkte bir top seçip uygun alanı bulabilir.'}));
+T.MA.push(c=>({ad:'Rakam Parkuru',tur:'Sayma / Hareket',grup:'Küçük Grup',ortam:'Salon / bahçe',mat:['bant','minder','sayikart',c.o0,'sepet'],
+  adim:['Yere renkli bantla geniş ve dar yollardan oluşan bir parkur yapılır; parkurun duraklarına rakam kartları yerleştirilir {E1.1}.',
+    'Çocuklar parkurda yürürken geniş ve dar yolları karşılaştırır {MAB.4.d}{HSAB.1.b}.',
+    `Her durakta karttaki rakam kadar ${c.n0} resmi toplanır ve sayılır {MAB.1.ç}{MAB.9.ç}.`,
+    'Toplanan resimler rakam kartıyla eşleştirilir {MAB.3.b}.',
+    'Parkur tamamlandığında gruplar topladıklarını sayar ve karşılaştırır {MAB.1.a}{SDB2.2}.'],
+  soru:['Hangi yol daha genişti?','Kaç tane resim topladın?','Parkurda en çok neyi sevdin?'],
+  destek:'Rakam kartları 1-5 ile sınırlandırılabilir.',zengin:'Çocuklar kendi parkurlarını tasarlayıp rakam kartlarını yerleştirebilir.'}));
+T.SNA.push(c=>({ad:'Parmak Boyasıyla Renkler',tur:'Boyama / Duyusal sanat',grup:'Küçük Grup',mat:['sulu','kagit',c.o0],
+  adim:['Masaya kırmızı, sarı ve mavi parmak boyaları ile büyük kâğıtlar hazırlanır; çocuklar renkleri adlandırır {E1.1}.',
+    'Çocuklar kullanmak istedikleri renkleri seçer {SNAB.4.b}.',
+    `Parmaklarıyla nokta ve çizgiler yaparak ${c.n0} resmi oluşturur; iki renk karışınca ne olduğu gözlemlenir {SNAB.4.ç}{FAB.1.b}.`,
+    'Ürünler "Renk Sergisi"nde asılır; çocuklar kullandıkları renkleri anlatır {SNAB.4.d}{SDB2.1}.',
+    'Eller birlikte temizlenir, masalar silinir {D18.2}.'],
+  soru:['Hangi renkleri kullandın?','Renkler karışınca ne oldu?','Resminde neler var?'],
+  destek:'İki renkle başlanabilir; boya dökülmeyen kaplarda sunulabilir.',zengin:'Çocuklar fırça, sünger ve parmakla aynı resmi yapıp izleri karşılaştırabilir.'}));
+
+/* ---- Yaşa göre yıllık temalar ---- */
+const YEAR_AGE = {
+ '36-48 ay':{
+  9:['Okula Uyum','Okulu, sınıfı ve arkadaşları tanıma; güven ve rutin oluşturma ayı.',[['Okulumu Tanıyorum','okul'],['Sınıfım ve Öğretmenim','okul'],['Renkler ve Ben','renkler'],['Ben Kimim?','ailem']],['D2','D12','D14'],['SA','TA','HSA']],
+  10:['Renkli Sonbahar','Renkleri ve sonbaharı keşfetme; hayvanları sevme ve bayram coşkusu.',[['Yapraklar Düşüyor','sonbahar'],['Renkleri Tanıyorum','renkler'],['Hayvan Dostlarım','hayvanlar'],['Bayram Coşkusu','cumhuriyet']],['D9','D19','D4'],['FA','SNA','MSA']],
+  11:['Ben ve Ailem','Duyguları tanıma, aileyi tanıtma ve temizlik alışkanlıkları.',[['Atatürk’ü Anıyoruz','cumhuriyet'],['Ailem','ailem'],['Duygularım','duygular'],['Temizlik ve Sağlık','saglik']],['D2','D15','D18'],['SA','TA','HSA']],
+  12:['Kış Kapıda','Sıcak-soğuk, giysiler, yerli meyveler ve yeni yıl.',[['Sıcak ve Soğuk','kis'],['Giysilerim','kis'],['Yerli Malı Meyveler','tasarruf'],['Yeni Yıl','kis']],['D17','D16'],['FA','SA','MA']],
+  1:['Kış Oyunları','Kar oyunları, hayvanlar kışın, masal saati.',[['Kar Oyunları','kis'],['Hayvanlar Kışın','hayvanlar'],['Masal Saati','kitaplar'],['Işığı Kapat','tasarruf']],['D16','D17'],['HSA','TA','FA']],
+  2:['Yardımcılarımız','Meslekler, taşıtlar ve güvenli oyun.',[['Yeniden Merhaba','okul'],['Meslekler','meslekler'],['Taşıtlar','tasitlar'],['Güvenli Oyun','spor']],['D3','D20'],['SA','HSA','TA']],
+  3:['Bahar Geldi','Çiçekler, su oyunları, İstiklâl Marşı ve kitaplar.',[['Çiçekler Açıyor','bahar'],['Su Oyunları','su'],['İstiklâl Marşı’mız','cumhuriyet'],['Kitap Haftası','kitaplar']],['D5','D19'],['FA','SNA','MSA']],
+  4:['Oyun ve Bayram','Gökyüzü, kitaplar, 23 Nisan ve oyunlarımız.',[['Gökyüzü','uzay'],['Kitaplarım','kitaplar'],['23 Nisan Şenliği','cocuklar'],['Oyunlarımız','spor']],['D4','D15'],['MSA','SNA','SA']],
+  5:['Sevgi ve Sağlık','Trafik, annem, herkes değerli ve renkli müze.',[['Trafik Işıkları','tasitlar'],['Annem','ailem'],['Herkes Değerli','duygular'],['Renkli Müze','renkler']],['D15','D16','D5'],['HSA','SA','SNA']],
+  6:['Merhaba Yaz','Çevre, babam ve yaz.',[['Çevremi Seviyorum','su'],['Babam','ailem'],['Yaz Geldi','yaz']],['D5','D7'],['FA','SNA','MSA']]},
+ '48-60 ay':{
+  9:['Okulumuz ve Arkadaşlarımız','Uyum, arkadaşlık, renkler ve şekiller.',[['Uyum Haftası','okul'],['Arkadaşlık','duygular'],['Renkler ve Şekiller','renkler'],['Ailem ve Ben','ailem']],['D4','D12','D14'],['SA','TA','MA']],
+  12:['Tutumlu Olalım','Tasarruf, yerli malı, renkler ve kış (MEB 48-60 ay Aralık örneğindeki kavramlarla).',[['Haklarımız','duygular'],['Tasarruf Ediyorum','tasarruf'],['Yerli Malı Haftası','tasarruf'],['Kış Geldi','kis']],['D17','D3','D16'],['MA','SA','FA']],
+  3:['Bahar Uyanıyor','Bilim, İstiklâl Marşı, orman ve kütüphaneler.',[['Bilim ve Teknoloji Haftası','uzay'],['İstiklâl Marşı’mız','cumhuriyet'],['Orman Haftası','bahar'],['Kütüphaneler Haftası','kitaplar']],['D19','D5'],['FA','SA','MSA']]}
+};
+function yearFor(y,yas){
+  const base=yearTemplate(y); const ov=YEAR_AGE[yas]; if(!ov) return base;
+  return base.map(m=>{const mm=+m.key.slice(5); const o=ov[mm]; if(!o) return m;
+    return {...m,baslik:o[0],ozet:o[1],weeks:o[2].map(w=>({baslik:w[0],tema:w[1]})),deger:o[3],odak:o[4]};});
+}
+
+/* ---- Yaşa göre günlük rutinler (MEB günlük plan örnekleri) ---- */
+function flowFor(th,yas){
+  const ndx=shuffle(th.n).slice(0,4).map(x=>x[0]).join(', ');
+  if(yas==='36-48 ay') return {
+    baslama:`Sınıfa gelen çocuklar günün zaman dilimine uygun ifadelerle selamlanarak karşılanır. Her çocuk, ev panosunda bulunan fotoğrafını alarak okul panosuna yerleştirir. Yoklamanın ardından sınıfta bulunan ve bulunmayan çocuklar birlikte belirlenir. Günün sorumlusu açıklanır. Çocuklarla birlikte hava durumu çarkındaki görseller incelenir ve "Bugün hava nasıl?" sorusu yöneltilir; günün sorumlusu çarktaki oku gözlemlediği hava durumuna uygun görsele getirir (OB4). Daha sonra kısa bir duygu paylaşım çemberi oluşturulur. Kukla kullanılarak "Bugün kendimi mutlu hissediyorum." gibi kısa bir paylaşım modellenir; paylaşmak isteyen çocuklar o gün nasıl hissettiklerini söyler veya yüz ifadeleri ve beden hareketleriyle gösterir (SDB1.1). Çocukların konuşan arkadaşlarının sözünü kesmeden dinlemelerine ve sıralarını beklemelerine rehberlik edilir (SDB2.1, D14.1).`,
+    merkez:`Öğrenme merkezleri çocukların ilgi ve gereksinimleri doğrultusunda düzenlenir; merkezlere ${th.ad} temalı materyaller (${ndx}) yerleştirilir. Çocukların materyalleri kendi oyunları doğrultusunda incelemelerine, seçmelerine ve kullanmalarına fırsat verilir. Her öğrenme merkezinin girişine merkezde aynı anda bulunabilecek çocuk sayısı kadar yaka kartı yerleştirilir. Çocuklar oynamak istedikleri merkezin yaka kartını alarak tercihlerini belirtir; merkezde boş yer bulunmaması durumunda başka bir merkez seçmeleri veya boş yer açılmasını beklemeleri desteklenir.`,
+    beslenme:'Oyun sürecinin tamamlanmasının ardından çocuklar kullandıkları materyalleri ait oldukları yerlere yerleştirir. Ellerini yıkayarak beslenmeye hazırlanır. Beslenme sonrasında oluşan atıkları uygun çöp kutularına atar, kullandıkları alanı düzenler ve ellerini yeniden yıkar. Çocukların sınıfın temizliğine ve düzenine katkıda bulunmaları desteklenir (D18.2).'};
+  if(yas==='48-60 ay') return {
+    baslama:`Sınıfa gelen çocuklar günün zaman dilimine uygun ifadelerle selamlanarak karşılanır. Her çocuk kutudan kendi isim çubuğunu alarak yoklama panosunda fotoğrafının altındaki cebe yerleştirir. Yoklamanın ardından sınıfta bulunan ve bulunmayan çocuklar birlikte belirlenir. Çocuklarla birlikte "Zamanın Bekçileri" parmak oyunu oynanır; ardından "Bugün günlerden ne?", "Bugün ayın kaçı?" ve "Bugün hava nasıl?" gibi sorular yöneltilir ve takvim ile hava durumu panosu günün sorumlusu tarafından düzenlenir. "${th.soru}" sorusuyla güne başlanır. Daha sonra duygu paylaşım çemberi oluşturulur; paylaşım "Bugün kendimi … hissediyorum, çünkü …" ifadesiyle modellenir ve topu elinde tutan çocuk duygusunu ve nedenini paylaşır (SDB1.1). Çocukların konuşan arkadaşlarını dikkatle dinlemelerine ve söz almadan konuşmamalarına rehberlik edilir (SDB2.1, D14.1).`,
+    merkez:`Çocuklara öğrenme merkezleri tanıtılır; merkezlere ${th.ad} temalı materyaller (${ndx}) yerleştirilir. Aynı anda merkezde bulunabilecek çocuk sayısını belirlemek için renkli mandallar kullanılır; çocuklar oynamak istedikleri merkezin mandalına fotoğraflarını takarak tercihlerini belirtir. Öğretmen belirli aralıklarla zil çalarak çocukların isterlerse farklı bir merkeze geçmelerine rehberlik eder. Süreç boyunca çocuklara merkezlerde yeterli süre tanınır; öğretmen oyunları gözlemleyerek gerektiğinde sözel rehberlik sağlar.`,
+    beslenme:'Çocuklar öğrenme merkezlerindeki oyun sürecini tamamladıktan sonra bir toplanma şarkısı eşliğinde kullandıkları materyalleri toplar ve ait oldukları yerlere yerleştirir. Ardından beslenme, toplanma ve temizlik süreçleri gerçekleştirilir. Bu süreçte çocuklar sınıfı temiz tutmaya özen gösterir, beslenme sonrasında oluşan atıkları uygun çöp kutusuna atarak temizlik ve düzen kurallarına uyarlar (D16.1).'};
+  return flowDefaults(th);
+}
+function sorularFor(p){
+  const y=AGE(); const base=p.acts.flatMap(a=>a.soru.slice(0,y==='36-48 ay'?1:2));
+  const gen = y==='36-48 ay' ? ['Bugün en çok hangi etkinlikten hoşlandın? Neden?','Bugün seni en mutlu eden şey neydi?']
+    : y==='48-60 ay' ? ['Bugün neler öğrendin?','Bugün en çok hangi etkinlikten hoşlandın? Neden?','Zorlandığın bir an oldu mu? O zaman nasıl hissettin?']
+    : ['Bugün en çok hangi etkinlikten hoşlandın? Neden?','Zorlandığın bir bölüm oldu mu? O sırada nasıl hissettin?','Etkinlikler sırasında arkadaşlarınla nasıl iş birliği yaptın?','Bugün öğrendiklerinden en çok sevdiğin şeyi daha önce görmüş ya da yapmış mıydın?'];
+  return uniq([...base,...gen]);
+}
+const DEG_KAPANIS = () => AGE()==='36-48 ay'
+  ? 'Çocukların cevapları doğru veya yanlış olarak değerlendirilmeden dikkatle dinlenir. Gerektiğinde "Bana gösterir misin?" ve "Biraz daha anlatmak ister misin?" gibi kısa ifadelerle paylaşımlarını sürdürmeleri desteklenir. Çocukların verdikleri yanıtlar ve gün boyunca yapılan gözlemler çocuk, program ve öğretmen açısından değerlendirilerek sonraki öğrenme-öğretme uygulamaları planlanır.'
+  : 'Çocukların verdikleri yanıtlar ve gün boyunca yapılan gözlemler çocuk, program ve öğretmen açısından değerlendirilerek sonraki öğrenme-öğretme uygulamaları planlanır.';
+
+/* ---- Eylül ayına özgü aile katılımı ve öğrenme kanıtı (MEB 36-48 ay Eylül örneği) ---- */
+const EYLUL_AILE = 'Hem çocuğun okula uyumu hem de ailelerin neler yapması gerektiği konusunda bilgilenmelerinin sağlanması, öğretmenin de çocuğu ve aileyi tanıması için “Sene Başı Tanışma Toplantısı” yapılabilir. Ailelere yönelik “okul tanıtımı” gibi uyum çalışmaları ve çocuğun okula uyumu konusunda “kitapçık” hazırlanabilir. Ayrıca ailelerin çocuk gelişimi ve eğitimi konusunda öncelikli olarak ihtiyaç duydukları konuda eğitim toplantısı planlamak için “Aile Eğitimi İhtiyaç Belirleme Formu” uygulanabilir. İlerleyen aylarda yapılacak aile katılımı çalışmalarına yönelik bilgi almak amaçlı “Aile Katılımı Tercih Formu” gönderilerek planlama yapılabilir. Ayrıca ailelerin sözel olarak ifade edemedikleri düşüncelerini rahat bir şekilde ifade edebilmeleri için “Dilek Kutusu” hazırlanabilir. Toplum katılımı için okulun yakın çevresinde bulunan yerel yönetimler, kamu kurumları ve sivil toplum kuruluşlarından hangileri ile iş birliği yapılabileceği belirlenebilir.';
+const EYLUL_KANIT = '“Anekdot Kayıt Formları” doldurulmaya başlanır. Sınıfta yapılan tüm çalışmalar çocuklarla birlikte değerlendirilerek seçilir ve “Portfolyo Dosyası’na” bu aydan itibaren eklenmeye başlanır. Öğrenme Kanıtları (Değerlendirme) bölümü çocukların beceri edinim süreci, programın değerlendirilmesi ve öğretmenin kendisini değerlendirmesi amacıyla doldurulur.';
+
+/* ---- Aylık değerlendirme ölçütleri (Program, Tablo 1-3) ---- */
+const OLCUT = {
+ cocuk:['Çocuklar bireysel etkinliklere aktif katılım göstermiştir.','Çocuklar grup etkinliklerine aktif katılım göstermiştir.','Çocuklar öğrenme-öğretme uygulamalarına ilgi ve istekle katılmıştır.','Çocuklar hedeflenen öğrenme çıktıları doğrultusunda ilerleme göstermiştir.','Çocuklar sosyal-duygusal öğrenme becerilerine ilişkin süreçlerde gelişim göstermiştir.','Çocuklar okuryazarlık becerilerine ilişkin süreçlerde gelişim göstermiştir.','Çocuklar eğilimler ve değerlere ilişkin davranışları öğrenme süreçlerinde yansıtmıştır.','Çocukların desteklenmesi gereken alanlar belirlenmiştir.','Çocukların bireysel özellikleri, ilgi, ihtiyaç ve hazır bulunuşluk düzeyleri doğrultusunda farklılaştırma gereksinimleri belirlenmiştir.'],
+ program:['Etkinlikler çocukların yaş ve gelişim düzeylerine uygundur.','Etkinlikler çocukların ihtiyaçlarına yöneliktir.','Etkinlikler planda yer alan öğrenme çıktıları ve süreç bileşenlerinin kazandırılmasında yeterlidir.','Aylık eğitim planında farklı alan becerilerine dengeli biçimde yer verilmiştir.','Aylık eğitim planında programlar arası bileşenlere dengeli biçimde yer verilmiştir.','Etkinlikler çocuk merkezli bir yaklaşımla planlanmış ve uygulanmıştır.','Etkinlikler için belirlenen süre yeterlidir.','Etkinliklerde çocukların aktif katılımını destekleyen uygulamalara yer verilmiştir.','Tasarlanan etkinlikler ile uygulamalar birbiriyle tutarlıdır.','Kullanılan değerlendirme araçları yeterlidir.','Açık hava öğrenme ortamları, rutinler ve geçişler öğrenme sürecini destekleyecek biçimde kullanılmıştır.','Farklılaştırma uygulamaları yeterlidir.','Aile ve toplum katılımı uygulamaları yeterlidir.'],
+ ogretmen:['Planlama ve uygulama süreci etkili bir şekilde yürütülmüştür.','Çocuklarla destekleyici ve teşvik edici bir iletişim kurulmuştur.','Öğrenme ortamı etkinliklerin amaçlarına uygun biçimde düzenlenmiştir.','Çocukların etkinliklere aktif katılımı desteklenmiştir.','Öğretmenin rehberlik rolü etkin biçimde kullanılmıştır.','Çocukların düşüncelerini ifade etmelerine fırsat tanınmıştır.','Çocukların ilgi ve ihtiyaçları doğrultusunda gerekli düzenlemeler yapılmıştır.','Süreç içerisinde esneklik ilkesi gözetilmiştir.','Gözlem ve değerlendirme sonuçları öğrenme-öğretme uygulamalarına yansıtılmıştır.','Öğretmenin kendi uygulamalarına ilişkin güçlü yönler belirlenmiştir.','Öğretmenin kendi uygulamalarına ilişkin geliştirilmesi gereken alanlar belirlenmiştir.','Günlük planlar uygulanırken zaman etkili yönetilebilmiştir.','Çocuklara fırsat eşitliği sağlanmıştır.','Çocukların farklılıklarına uygun süreçler planlanmıştır.','Uygulama sürecinde karşılaşılan güçlükler belirlenmiş, bu güçlüklerin giderilmesine yönelik bir sonraki aylık eğitim planında uygulanacak düzenlemeler ve ihtiyaç duyulan destekler planlanmıştır.']
+};
+const OLCUT_TABLO = {cocuk:'Tablo 1',program:'Tablo 2',ogretmen:'Tablo 3'};
+function olcutHTML(f){
+  return `<details class="no-print"><summary class="small">${OLCUT_TABLO[f]}: örnek ölçütleri ekle</summary><div class="chips" style="margin-top:6px">${OLCUT[f].map((t,i)=>`<button class="chip olcut" data-do="olcut" data-f="${f}" data-i="${i}">+ ${esc(t)}</button>`).join('')}</div></details>`;
+}
+
+/* ---- Sınıf (yaş grubu) yönetimi ---- */
+const CLASS_FIELDS = ['year','monthly','daily','anek','cocuklar','rapor'];
+function newClassData(yas){ return {year:yearFor(S.settings.baslangic,yas),monthly:{},daily:{},anek:[],cocuklar:[],rapor:{}}; }
+const curClass = () => S.siniflar.find(c=>c.id===S.aktif);
+function stashActive(){ const d={}; CLASS_FIELDS.forEach(f=>d[f]=S[f]); S.sdata[S.aktif]=d; }
+function switchClass(id){
+  if(id===S.aktif) return;
+  stashActive();
+  const c=S.siniflar.find(x=>x.id===id); const d=S.sdata[id]||newClassData(c.yas);
+  CLASS_FIELDS.forEach(f=>S[f]=d[f]); delete S.sdata[id];
+  S.aktif=id; S.settings.yas=c.yas; S.settings.sinif=c.ad; S.ui.gen.yas=c.yas; S.ui.anekDraft=null; S.ui.anekF='ALL'; S.ui.rapC=null;
+  save(); render(); toast(`${c.ad} (${c.yas}) açıldı`);
+}
+function migrateClasses(){
+  S.rapor=S.rapor||{}; S.anek=S.anek||[]; S.cocuklar=S.cocuklar||[];
+  if(S.siniflar) return;
+  const yas=S.settings.yas||'60-72 ay';
+  S.siniflar=[{id:'c'+uid(),ad:S.settings.sinif||`${yas} grubu`,yas}];
+  S.aktif=S.siniflar[0].id; S.sdata={};
+  AGES.filter(a=>a!==yas).forEach(a=>S.siniflar.push({id:'c'+uid(),ad:`Anasınıfı (${a})`,yas:a}));
+  S.siniflar.sort((a,b)=>AGES.indexOf(a.yas)-AGES.indexOf(b.yas));
+}
+function classBar(){
+  const c=curClass(); if(!c) return '';
+  return `<div class="class-bar"><label for="cls" class="label">Sınıf</label><select id="cls">${S.siniflar.map(x=>`<option value="${x.id}" ${x.id===S.aktif?'selected':''}>${esc(x.ad)} · ${esc(x.yas)}</option>`).join('')}</select><span class="age-pill" data-age="${esc(c.yas)}">${esc(c.yas)}</span></div>`;
+}
+function classSettingsHTML(){
+  return `<section class="panel" style="display:grid;gap:12px">
+    <h2>Sınıflarım (yaş grupları)</h2>
+    <p class="muted small">Her sınıfın kendi yıllık, aylık ve günlük planları, anekdot kayıtları, çocuk listesi ve raporları vardır. Sayfaların üstündeki "Sınıf" seçicisiyle geçiş yapabilirsiniz.</p>
+    <div class="tbl-wrap"><table class="otbl"><tbody>${S.siniflar.map(c=>`<tr><td><input type="text" id="cn-${c.id}" data-cls="${c.id}" data-cf="ad" value="${esc(c.ad)}" aria-label="Sınıf adı"></td><td style="width:150px"><select id="cy-${c.id}" data-cls="${c.id}" data-cf="yas" aria-label="Yaş grubu">${AGES.map(a=>`<option ${a===c.yas?'selected':''}>${a}</option>`).join('')}</select></td><td style="width:170px">${c.id===S.aktif?'<span class="chip">Açık</span>':`<button class="btn sm" data-do="clsopen" data-id="${c.id}">Aç</button> <button class="btn sm ghost danger" data-do="clsdel" data-id="${c.id}">Sil</button>`}</td></tr>`).join('')}</tbody></table></div>
+    <div id="cls-confirm"></div>
+    <div class="toolbar">${AGES.map(a=>`<button class="btn sm" data-do="clsadd" data-v="${a}">${IC.plus} ${a} sınıfı ekle</button>`).join('')}</div>
+  </section>`;
+}
+
+/* =========================================================
+   BECERİ EDİNİM RAPORU HAZIRLIĞI
+   Program: rapor dönem sonlarında e-Okul'da, dönem boyunca ele alınan
+   öğrenme çıktıları ve süreç bileşenlerine göre doldurulur.
+   ========================================================= */
+const DONEM = {1:{ad:'1. dönem',ay:[9,10,11,12,1]},2:{ad:'2. dönem',ay:[2,3,4,5,6]}};
+const DURUM = [['g','Gözlendi','✓'],['d','Gelişiyor','~'],['s','Desteklenmeli','!']];
+function donemMonths(dn){ return S.year.filter(m=>DONEM[dn].ay.includes(+m.key.slice(5))); }
+function donemCodes(dn){ const age=AGE(); return ordS(age,uniq(donemMonths(dn).flatMap(m=>S.monthly[m.key]?S.monthly[m.key].sel.s:[])).filter(c=>subInfo(age,c))); }
+function donemRange(dn){ const ms=donemMonths(dn).map(m=>m.key); return [ms[0]+'-01', ms[ms.length-1]+'-31']; }
+function rapKey(c,dn){ return `${c}|${dn}`; }
+function rapData(c,dn){ const k=rapKey(c,dn); if(!S.rapor[k]) S.rapor[k]={not:{},genel:''}; return S.rapor[k]; }
+function anekFor(child,dn){ const [a,b]=donemRange(dn); return S.anek.filter(r=>r.cocuk===child&&r.tarih>=a&&r.tarih<=b); }
+function vRapor(){
+  const age=AGE(); const names=childNames(); const dn=S.ui.rapD||((new Date().getMonth()+1)>=2&&(new Date().getMonth()+1)<=8?2:1);
+  const child=S.ui.rapC&&names.includes(S.ui.rapC)?S.ui.rapC:names[0]; const codes=donemCodes(dn);
+  const missing=donemMonths(dn).filter(m=>!S.monthly[m.key]).length;
+  let body='';
+  if(!child) body=`<div class="empty"><div class="em">👧</div><b>Önce çocuk listesini ekleyin</b><span class="small">Aşağıdaki kutuya her satıra bir çocuk adı yazın ya da anekdot kaydı ekleyin.</span></div>`;
+  else {
+    const R=rapData(child,dn); const ank=anekFor(child,dn);
+    const cnt={g:0,d:0,s:0}; codes.forEach(c=>{const v=R.not[c]; if(v) cnt[v]++;});
+    const byAlan={}; codes.forEach(c=>{const si=subInfo(age,c); (byAlan[si.o.alan]=byAlan[si.o.alan]||[]).push(si)});
+    body=`<section class="sheet">
+      <div class="sheet-title"><b>BECERİ EDİNİM RAPORU HAZIRLIĞI</b><span>${esc(child)} · ${DONEM[dn].ad} · ${esc(age)}</span></div>
+      <div class="sec"><div class="stat-row"><div class="stat"><span class="label">Ele alınan bileşen</span><b>${codes.length}</b></div><div class="stat"><span class="label">İşaretlenen</span><b>${cnt.g+cnt.d+cnt.s}</b></div><div class="stat"><span class="label">Anekdot kaydı</span><b>${ank.length}</b></div></div>
+        <p class="note">Program, Beceri Edinim Raporu’nun dönem sonlarında e-Okul üzerinden, dönem boyunca ele alınan öğrenme çıktıları ve süreç bileşenlerine göre doldurulmasını ister. Bu sayfa o rapora hazırlıktır: listede yalnızca bu dönemin aylık planlarında seçtiğiniz bileşenler vardır. "Gözlendi / Gelişiyor / Desteklenmeli" işaretleri sizin notunuzdur; e-Okul’daki seçenekleri esas alın.</p>
+        ${missing?`<div class="toolbar"><span class="small muted">${missing} ayın aylık planı henüz açılmadı.</span><button class="btn sm" data-do="allmonths">Tüm ayların planını oluştur</button></div>`:''}</div>
+      <div class="sec">${codes.length?ALAN_KEYS.filter(a=>byAlan[a]).map(a=>`<div class="h-alan" style="--ac:${ALAN[a].c}">${ALAN[a].up}</div>${byAlan[a].map(si=>{const c=`${si.o.k}.${si.l}`;const ev=ank.filter(r=>(r.kodlar||[]).includes(c)).length;return `<div class="rap-row"><div class="rap-t"><b>${c}.</b> ${esc(si.t)}${ev?` <span class="chip code" title="Bu bileşene bağlı anekdot kaydı">📝 ${ev}</span>`:''}</div><div class="rap-b" role="group" aria-label="${c} durumu">${DURUM.map(([v,l,s])=>`<button class="chip st-${v}" data-do="rapset" data-c="${esc(c)}" data-v="${v}" aria-pressed="${R.not[c]===v}">${s} ${l}</button>`).join('')}</div></div>`}).join('')}`).join(''):'<p class="muted small">Bu dönemin aylık planlarında henüz süreç bileşeni seçilmemiş.</p>'}</div>
+      <div class="sec"><div class="sec-title"><h3>Anekdot kayıtları (kanıtlar)</h3></div>${ank.length?ank.map(r=>`<p class="small"><b>${fmtShort(r.tarih)}</b> · ${esc(r.mekan||'')} — ${esc((r.durum||'').slice(0,180))}${(r.durum||'').length>180?'…':''}</p>`).join(''):'<p class="muted small">Bu dönemde bu çocuk için anekdot kaydı yok.</p>'}</div>
+      <div class="sec"><div class="sec-title"><h3>Öğretmenin genel değerlendirme ve gözlemleri</h3></div><textarea id="r-genel" data-bind="rap.genel" placeholder="Çocuğun güçlü yönleri, gelişim gösterdiği ve desteklenmesi gereken alanlar…">${esc(R.genel)}</textarea></div>
+    </section>`;
+  }
+  return `
+  <div class="page-head"><div><span class="label">Sonuç odaklı değerlendirme</span><h1>Beceri Edinim Raporu</h1><p class="muted">Dönem boyunca tuttuğunuz anekdot kayıtları ve aylık planlarınızdaki bileşenlerle her çocuk için rapor hazırlığı.</p></div>
+    <div class="toolbar">${child?`<button class="btn" data-do="word" data-kind="rapor">📄 Word’e aktar</button><button class="btn" data-do="word" data-kind="raporAll">📄 Tüm çocuklar</button>`:''}</div></div>
+  <section class="panel" style="display:grid;gap:12px">
+    <div class="alan-pick">${[1,2].map(d=>`<button data-do="rapD" data-v="${d}" aria-pressed="${dn===d}" style="--ac:var(--accent)">${DONEM[d].ad}</button>`).join('')}</div>
+    ${names.length?`<div class="alan-pick">${names.map(n=>`<button data-do="rapC" data-v="${esc(n)}" aria-pressed="${n===child}" style="--ac:var(--c-sa)">${esc(n)}</button>`).join('')}</div>`:''}
+    <details ${names.length?'':'open'}><summary class="small">Çocuk listesini düzenle (${(S.cocuklar||[]).length})</summary><textarea id="r-list" placeholder="Her satıra bir çocuk adı soyadı">${esc((S.cocuklar||[]).join('\n'))}</textarea><div class="toolbar"><button class="btn sm primary" data-do="rlist">Listeyi kaydet</button></div></details>
+  </section>
+  ${body}`;
+}
+function docRapor(child,dn){
+  const age=AGE(); const R=rapData(child,dn); const codes=donemCodes(dn); const ank=anekFor(child,dn); const st=S.settings;
+  const lab=v=>{const d=DURUM.find(x=>x[0]===v);return d?d[1]:''};
+  let b=wp(wr('BECERİ EDİNİM RAPORU HAZIRLIK FORMU'),{style:'Title'});
+  b+=wInfo([['Çocuğun Adı Soyadı',child],['Okul Adı',st.okul],['Sınıf / Yaş Grubu',`${curClass().ad} · ${age}`],['Dönem',`${DONEM[dn].ad} (${st.baslangic}-${st.baslangic+1})`],['Öğretmenin Adı',st.ogretmen]]);
+  b+=wp(wr('Bu form, e-Okul’daki Beceri Edinim Raporu’na hazırlık amacıyla dönem boyunca ele alınan süreç bileşenleri, gözlem notları ve anekdot kayıtlarından hazırlanmıştır.',{i:true,sz:18,color:'555555'}));
+  b+=wh1('ÖĞRENME ÇIKTILARI VE SÜREÇ BİLEŞENLERİ');
+  const W=[1500,6064,2300];
+  const byAlan={}; codes.forEach(c=>{const si=subInfo(age,c);(byAlan[si.o.alan]=byAlan[si.o.alan]||[]).push(si)});
+  if(!codes.length) b+=wp('—');
+  ALAN_KEYS.filter(a=>byAlan[a]).forEach(a=>{
+    b+=wh2(ALAN[a].up);
+    b+=wtable([[{c:wp(wr('Kod',{b:true}),{after:0}),fill:'EEF3FB',col:0},{c:wp(wr('Süreç bileşeni',{b:true}),{after:0}),fill:'EEF3FB',col:1},{c:wp(wr('Durum',{b:true}),{after:0}),fill:'EEF3FB',col:2}],
+      ...byAlan[a].map(si=>{const c=`${si.o.k}.${si.l}`;return [{c:wp(wr(c,{b:true}),{after:0}),col:0},{c:wp(wr(si.t),{after:0}),col:1},{c:wp(wr(lab(R.not[c])),{after:0}),col:2}]})],W);
+  });
+  b+=wh1('ANEKDOT KAYITLARI');
+  b+=ank.length?ank.map(r=>wp(wr(fmtShort(r.tarih)+(r.mekan?' · '+r.mekan:'')+': ',{b:true})+wr(r.durum||''))).join(''):wp('—');
+  b+=wh1('ÖĞRETMENİN GENEL DEĞERLENDİRME VE GÖZLEMLERİ')+wText(R.genel);
+  return b;
+}
+
+function rapCur(){ const names=childNames(); const dn=S.ui.rapD||((new Date().getMonth()+1)>=2&&(new Date().getMonth()+1)<=8?2:1); const child=S.ui.rapC&&names.includes(S.ui.rapC)?S.ui.rapC:names[0]; return {child,dn}; }
+function vDeger(){
+  const t=S.ui.dTab||'anek';
+  return `<div class="alan-pick" role="tablist"><button data-do="dtab" data-v="anek" aria-pressed="${t==='anek'}" style="--ac:var(--accent)">📝 Anekdot kayıtları (EK-2)</button><button data-do="dtab" data-v="rapor" aria-pressed="${t==='rapor'}" style="--ac:var(--accent)">📊 Beceri Edinim Raporu</button></div>`+(t==='rapor'?vRapor():vAnek());
 }
 
 /* ---------- Modallar ---------- */
@@ -1633,13 +1867,13 @@ let toastT;
 function toast(msg){clearTimeout(toastT);let el=$('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=msg;toastT=setTimeout(()=>el.remove(),2600)}
 
 /* ---------- Çizim ---------- */
-const VIEWS={home:vHome,year:vYear,month:vMonth,day:vDay,gen:vGen,bank:vBank,anek:vAnek,set:vSet};
+const VIEWS={home:vHome,year:vYear,month:vMonth,day:vDay,gen:vGen,bank:vBank,anek:vDeger,set:vSet};
 const grow = t => { t.style.height='auto'; t.style.height=(t.scrollHeight+4)+'px'; };
-function render(keepScroll){ const y=window.scrollY; renderNav(); $('#view').innerHTML=VIEWS[S.ui.view](); document.querySelectorAll('#view textarea').forEach(grow); window.scrollTo(0,keepScroll?y:0); }
+function render(keepScroll){ const y=window.scrollY; renderNav(); $('#view').innerHTML=classBar()+VIEWS[S.ui.view](); document.querySelectorAll('#view textarea').forEach(grow); window.scrollTo(0,keepScroll?y:0); }
 function go(v){S.ui.view=v;save();render();}
 
 /* ---------- Olaylar ---------- */
-function addToDay(k,a){const p=getDay(k);p.acts.push({...a,id:uid()});save();}
+function addToDay(k,a){const p=getDay(k);p.acts.push({...a,id:uid()});save(); if(a.yas!==AGE()) setTimeout(()=>toast(`Not: bu etkinlik ${a.yas} için hazırlanmıştı; kodları o yaş grubuna göredir.`),2700);}
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]'); if(g){closeModal();go(g.dataset.go);return}
   const b=e.target.closest('[data-do]'); if(!b) return;
@@ -1664,6 +1898,7 @@ document.addEventListener('click',e=>{
     case 'genclear': S.gen=[]; save(); render(true); break;
     case 'genfor': S.ui.gen.tema=b.dataset.tema; S.ui.gen.yas=AGE(); S.gen=Array.from({length:7},(_,i)=>generate({alan:ALAN_KEYS[i],tema:b.dataset.tema})); go('gen'); break;
     case 'bf': S.ui.bankF=b.dataset.v; render(true); break;
+    case 'bY': S.ui.bankY=b.dataset.v; save(); render(true); break;
     case 'ytab': S.ui.yTab=b.dataset.v; save(); render(true); break;
     case 'allmonths': S.year.forEach(m=>getMonth(m.key)); render(true); toast('Tüm ayların planı oluşturuldu'); break;
     case 'openmonth': S.ui.month=b.dataset.key; go('month'); break;
@@ -1673,7 +1908,7 @@ document.addEventListener('click',e=>{
     case 'emaddw': {const i=+b.dataset.i; readMonthForm(i); S.year[i].weeks.push({baslik:'Yeni hafta',tema:'okul'}); editMonthModal(i); break;}
     case 'emdelw': {const i=+b.dataset.i; readMonthForm(i); S.year[i].weeks.pop(); editMonthModal(i); break;}
     case 'emsave': {const i=+b.dataset.i; readMonthForm(i); save(); closeModal(); render(true); toast('Ay planı güncellendi'); break;}
-    case 'resetyear': S.year=yearTemplate(S.settings.baslangic); S.monthly={}; save(); render(true); toast('Yıllık plan varsayılan temalara döndü'); break;
+    case 'resetyear': S.year=yearFor(S.settings.baslangic,AGE()); S.monthly={}; save(); render(true); toast('Yıllık plan varsayılan temalara döndü'); break;
     case 'tog': {const M=getMonth(S.ui.month); const f=b.dataset.f, v=b.dataset.v; M.sel[f]=M.sel[f].includes(v)?M.sel[f].filter(x=>x!==v):[...M.sel[f],v]; save(); render(true); break;}
     case 'remonth': {const old=S.monthly[S.ui.month]; const nm=newMonth(S.ui.month); if(old){['uyg','zen','des','aile','kanit','cocuk','program','ogretmen','yansitma'].forEach(f=>nm[f]=old[f])} S.monthly[S.ui.month]=nm; save(); render(true); toast('Seçimler haftalık temalara göre yeniden önerildi'); break;}
     case 'pick': S.ui.pickT=b.dataset.target; pickModal(); break;
@@ -1701,11 +1936,22 @@ document.addEventListener('click',e=>{
       const keep={mekan:d.mekan,tarih:d.tarih}; S.ui.anekDraft={...newAnek(),...keep}; save(); render(true); toast(d.id?'Kayıt güncellendi':'Anekdot kaydı eklendi'); break;}
     case 'anew': case 'aclear': S.ui.anekDraft=newAnek(); save(); render(true); break;
     case 'af': S.ui.anekF=b.dataset.v; save(); render(true); break;
+    case 'dtab': S.ui.dTab=b.dataset.v; save(); render(true); break;
+    case 'rapD': S.ui.rapD=+b.dataset.v; save(); render(true); break;
+    case 'rapC': S.ui.rapC=b.dataset.v; save(); render(true); break;
+    case 'rapset': {const c=rapCur(); const R=rapData(c.child,c.dn); const k=b.dataset.c; if(R.not[k]===b.dataset.v) delete R.not[k]; else R.not[k]=b.dataset.v; save(); render(true); break;}
+    case 'rlist': {S.cocuklar=uniq($('#r-list').value.split('\n').map(s=>s.trim())); save(); render(true); toast('Çocuk listesi kaydedildi'); break;}
+    case 'olcut': {const M=getMonth(S.ui.month); const f=b.dataset.f; const t=OLCUT[f][+b.dataset.i]; const cur=(M[f]||'').trim(); if(cur===AY_METIN[f]) M[f]=t; else if(!cur.includes(t)) M[f]=(cur?cur+' ':'')+t; save(); render(true); break;}
+    case 'clsopen': switchClass(id); break;
+    case 'clsadd': {const a2=b.dataset.v; const n=S.siniflar.filter(x=>x.yas===a2).length; const c={id:'c'+uid(),ad:`Anasınıfı (${a2})${n?' '+(n+1):''}`,yas:a2}; S.siniflar.push(c); save(); render(true); toast(`${c.ad} eklendi`); break;}
+    case 'clsdel': {const c=S.siniflar.find(x=>x.id===id); $('#cls-confirm').innerHTML=`<div class="note" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">"${esc(c.ad)}" sınıfı ve tüm planları silinsin mi? <button class="btn sm danger" data-do="clsdel2" data-id="${id}">Evet, sil</button><button class="btn sm ghost" data-do="clsdel0">Vazgeç</button></div>`; break;}
+    case 'clsdel0': $('#cls-confirm').innerHTML=''; break;
+    case 'clsdel2': S.siniflar=S.siniflar.filter(x=>x.id!==id); delete S.sdata[id]; save(); render(true); toast('Sınıf silindi'); break;
     case 'aedit': {const r=S.anek.find(x=>x.id===id); S.ui.anekDraft={...r,kodlar:r.kodlar.slice()}; save(); render(); break;}
     case 'adel': $('#adel-'+id).innerHTML=`<div class="note" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">Bu kayıt silinsin mi? <button class="btn sm danger" data-do="adel2" data-id="${id}">Evet, sil</button><button class="btn sm ghost" data-do="adel0" data-id="${id}">Vazgeç</button></div>`; break;
     case 'adel0': $('#adel-'+id).innerHTML=''; break;
     case 'adel2': S.anek=S.anek.filter(x=>x.id!==id); if(anekDraft().id===id) S.ui.anekDraft=newAnek(); save(); render(true); toast('Kayıt silindi'); break;
-    case 'imp': {try{const o=JSON.parse($('#s-json').value); if(!o.year||!o.settings||o.v!==2) throw 0; S=o; S.anek=S.anek||[]; S.cocuklar=S.cocuklar||[]; save(); render(); toast('Veriler geri yüklendi');}catch(err){toast('Yedek okunamadı: kutudaki metin bu uygulamanın yedeği olmalı');} break;}
+    case 'imp': {try{const o=JSON.parse($('#s-json').value); if(!o.year||!o.settings||o.v!==2) throw 0; S=o; migrateClasses(); save(); render(); toast('Veriler geri yüklendi');}catch(err){toast('Yedek okunamadı: kutudaki metin bu uygulamanın yedeği olmalı');} break;}
     case 'reset': $('#reset-confirm').innerHTML='<div class="note" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">Tüm planlar ve banka silinecek. Emin misiniz? <button class="btn sm danger" data-do="reset2">Evet, sıfırla</button><button class="btn sm ghost" data-do="reset0">Vazgeç</button></div>'; break;
     case 'reset0': $('#reset-confirm').innerHTML=''; break;
     case 'reset2': try{localStorage.removeItem(KEY)}catch(err){} seed(); save(); render(); toast('Uygulama sıfırlandı'); break;
@@ -1714,13 +1960,16 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{
   const t=e.target; const bind=t.dataset.bind;
   if(t.tagName==='TEXTAREA') grow(t);
-  if(bind){const [scope,...path]=bind.split('.'); let obj= scope==='day'?getDay(S.ui.day): scope==='month'?getMonth(S.ui.month): scope==='anek'?anekDraft(): S.settings;
+  if(bind){const [scope,...path]=bind.split('.'); let obj= scope==='day'?getDay(S.ui.day): scope==='month'?getMonth(S.ui.month): scope==='anek'?anekDraft(): scope==='rap'?(()=>{const c=rapCur();return rapData(c.child,c.dn)})(): S.settings;
     for(let i=0;i<path.length-1;i++) obj=obj[path[i]]; obj[path[path.length-1]]=t.value; save(); if(scope==='set') renderNav(); return;}
+  if(t.dataset.cls&&t.dataset.cf==='ad'){const c=S.siniflar.find(x=>x.id===t.dataset.cls); c.ad=t.value; if(c.id===S.aktif) S.settings.sinif=t.value; save(); renderNav(); return;}
   if(t.id==='bq'||t.id==='pq'){ if(t.id==='bq') S.ui.bankQ=t.value; else S.ui.progQ=t.value; const id=t.id,pos=t.selectionStart; render(true); const n=$('#'+id); n.focus(); n.setSelectionRange(pos,pos);}
 });
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset.pick){const set=pickTarget(); const c=t.dataset.pick; const i=set.indexOf(c); if(t.checked&&i<0) set.push(c); if(!t.checked&&i>=0) set.splice(i,1); save(); return;}
+  if(t.id==='cls'){switchClass(t.value);return;}
+  if(t.dataset.cls&&t.dataset.cf==='yas'){const c=S.siniflar.find(x=>x.id===t.dataset.cls); c.yas=t.value; if(c.id===S.aktif){S.settings.yas=t.value;S.ui.gen.yas=t.value;} save(); render(true); toast(`${c.ad} artık ${t.value}. Aylık planda "Seçimleri yeniden öner" ile bu yaşa uygun öneri alın.`); return;}
   if(t.id==='msel'){S.ui.month=t.value;save();render();}
   else if(t.id==='a-tarih'&&t.value){anekDraft().tarih=t.value;save();render(true);}
   else if(t.id==='dsel'&&t.value){S.ui.day=t.value;save();render();}
@@ -1728,13 +1977,13 @@ document.addEventListener('change',e=>{
   else if(t.id==='g-tema'){S.ui.gen.tema=t.value;save();}
   else if(t.id==='p-age'){S.ui.progAge=t.value;render(true);}
   else if(t.id==='s-yas'){S.settings.yas=t.value;S.ui.gen.yas=t.value;save();renderNav();toast('Yaş grubu değişti. Aylık planda "Seçimleri yeniden öner" ile bu yaşa uygun öneri alabilirsiniz.');}
-  else if(t.id==='s-yil'){const y=+t.value; if(y!==S.settings.baslangic){S.settings.baslangic=y;S.year=yearTemplate(y);S.monthly={};save();render(true);toast(`${y}-${y+1} yılı temaları yüklendi`);}}
+  else if(t.id==='s-yil'){const y=+t.value; if(y!==S.settings.baslangic){S.settings.baslangic=y;S.year=yearFor(y,AGE());S.monthly={};Object.keys(S.sdata).forEach(id=>{const c=S.siniflar.find(x=>x.id===id);if(c){S.sdata[id].year=yearFor(y,c.yas);S.sdata[id].monthly={};}});save();render(true);toast(`${y}-${y+1} yılı temaları yüklendi`);}}
   else if(t.id==='s-file'&&t.files[0]){const r=new FileReader();r.onload=()=>{$('#s-json').value=r.result;toast('Dosya okundu; "Geri yükle"ye dokunun')};r.readAsText(t.files[0]);}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){const wasPick=!!$('.pick-list');closeModal();if(wasPick)render(true);}});
 
 /* ---------- Başlat ---------- */
-S = load() || seed(); S.anek=S.anek||[]; S.cocuklar=S.cocuklar||[]; save();
+S = load() || seed(); migrateClasses(); save();
 const h=(location.hash||'').slice(1); if(VIEWS[h]) S.ui.view=h;
 render();
 

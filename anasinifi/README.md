@@ -11,6 +11,16 @@ internet bağlantısı (yazı tipleri hariç) veya sunucu gerekmez.
 
 ## Neler var?
 
+- **Üç yaş grubu: 36-48, 48-60 ve 60-72 ay** — Her yaş grubu ayrı bir sınıf olarak
+  tutulur; yıllık, aylık ve günlük planları, anekdot kayıtları, çocuk listesi ve
+  raporları birbirinden ayrıdır. Sayfaların üstündeki "Sınıf" seçicisiyle geçilir;
+  Ayarlar'dan aynı yaşta birden fazla sınıf eklenebilir. Her yaş grubunda:
+  - o yaşın EK-1 öğrenme çıktıları ve süreç bileşenleri,
+  - yaşa uygun yıllık temalar,
+  - MEB 36-48 ve 48-60 ay günlük plan örneklerindeki rutinler (güne başlama,
+    öğrenme merkezleri, beslenme) ve gün sonu soruları,
+  - etkinliklerde o yaşın süreç bileşenleri.
+
 - **Yıllık Plan** — Eylül–Haziran arası 10 ay; her ay için tema, haftalık
   konular, belirli gün ve haftalar, değerler ve odak alanlar. Hepsi düzenlenebilir.
 - **Aylık Plan** — Tema bannerı, haftalık kartlar, takvim, alan becerileri ve
@@ -24,6 +34,13 @@ internet bağlantısı (yazı tipleri hariç) veya sunucu gerekmez.
   materyaller, dikkat çekme, adımlar, değerlendirme soruları, destekleme /
   zenginleştirme ve aile katılımı bulunur. Tek dokunuşla plana ya da bankaya eklenir.
 - **Etkinlik Bankam** — Kaydedilen etkinlikler; arama ve alan filtresi.
+- **Aylık değerlendirme ölçütleri** — Programdaki Tablo 1 (çocuk), Tablo 2 (program)
+  ve Tablo 3 (öğretmen) örnek ölçütleri tek dokunuşla değerlendirmeye eklenir.
+- **Beceri Edinim Raporu hazırlığı** — Her çocuk ve dönem için, o dönemin aylık
+  planlarında ele alınan süreç bileşenleri listelenir; öğretmen kendi notunu
+  (gözlendi / gelişiyor / desteklenmeli) işaretler, anekdot kayıtları kanıt olarak
+  görünür, genel değerlendirme yazılır ve Word'e aktarılır. Resmî rapor e-Okul'da
+  doldurulur; bu ekran ona hazırlıktır.
 - **Anekdot Kayıtları (EK-2)** — Programdaki anekdot kayıt formunun alanlarıyla
   (çocuğun adı soyadı, tarih, gözlenen mekân, gözlenen durum, gözlenen beceriler,
   gözlemcinin genel değerlendirmesi). Gözlenen beceriler o günün planından önerilir
