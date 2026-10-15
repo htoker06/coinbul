@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block baslik %}Şifre değiştir{% endblock %}
+{% block icerik %}
+<div class="giris-kutu kart">
+  <h1>Şifre değiştir</h1>
+  <form method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Mevcut şifre</label><input type="password" name="eski" required>
+    <label>Yeni şifre (en az 6 karakter)</label><input type="password" name="yeni" required minlength="6">
+    <label>Yeni şifre (tekrar)</label><input type="password" name="yeni2" required minlength="6">
+    <p><button class="btn">Kaydet</button></p>
+  </form>
+</div>
+{% endblock %}

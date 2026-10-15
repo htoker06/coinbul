@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_makrolar.html" import cubuk %}
+{% block baslik %}{{ f.ad }}{% endblock %}
+{% block icerik %}
+<div class="satir" style="justify-content: space-between">
+  <div>
+    <h1>{{ f.ad }} {% if not f.acik %}<span class="rozet r-kapali">Kapalı</span>{% endif %}</h1>
+    <p class="alt">Öğrenci başı {{ f.ucret|para }}{% if f.son_tarih %} · Son ödeme {{ f.son_tarih|tarih }}{% endif %}{% if f.aciklama %} · {{ f.aciklama }}{% endif %}</p>
+  </div>
+  <div class="satir yazdirma-yok">
+    <a class="btn ikincil" href="{{ url_for('raporlar', faaliyet=f.id, tur='sinif_ozet') }}">Raporlar</a>
+    {% if yonetici %}<a class="btn ikincil" href="{{ url_for('faaliyet_duzenle', fid=f.id) }}">Düzenle</a>{% endif %}
+  </div>
+</div>
+
+<div class="ozet-kutular">
+  <div><span>Toplanması gereken</span><b>{{ t.hedef|para }}</b></div>
+  <div><span>Toplanan</span><b style="color:var(--yesil)">{{ t.toplanan|para }}</b></div>
+  <div><span>Kalan</span><b style="color:var(--kirmizi)">{{ t.kalan|para }}</b></div>
+  <div><span>Tahsilat oranı</span><b>%{{ t.yuzde }}</b></div>
+  <div><span>Tamamlayan / kısmi / ödemeyen</span><b>{{ t.tamam }} / {{ t.kismi }} / {{ t.yok }}</b></div>
+</div>
+
+<h2>Sınıflar — ödeme girmek için sınıfa tıklayın</h2>
+<div class="tablo-kutu">
+<table>
+  <tr><th>Sınıf</th><th class="orta">Öğrenci</th><th class="sag">Hedef</th><th class="sag">Toplanan</th>
+      <th class="sag">Kalan</th><th style="width:160px">Tahsilat</th><th class="orta">Tamam</th>
+      <th class="orta">Kısmi</th><th class="orta">Ödemedi</th><th class="orta">Muaf</th></tr>
+  {% for s in ozetler %}
+  <tr>
+    <td><a href="{{ url_for('tahsilat', fid=f.id, sid=s.sinif_id) }}"><b>{{ s.sinif }}</b></a></td>
+    <td class="orta">{{ s.ogrenci }}</td>
+    <td class="sag">{{ s.hedef|para }}</td>
+    <td class="sag">{{ s.toplanan|para }}</td>
+    <td class="sag">{{ s.kalan|para }}</td>
+    <td><div class="satir" style="flex-wrap:nowrap; gap:6px">{{ cubuk(s.yuzde) }}<span style="font-size:13px">%{{ s.yuzde }}</span></div></td>
+    <td class="orta">{{ s.tamam }}</td><td class="orta">{{ s.kismi }}</td>
+    <td class="orta">{{ s.yok }}</td><td class="orta">{{ s.muaf }}</td>
+  </tr>
+  {% endfor %}
+  <tr class="toplam">
+    <td>Toplam</td><td class="orta">{{ t.ogrenci }}</td><td class="sag">{{ t.hedef|para }}</td>
+    <td class="sag">{{ t.toplanan|para }}</td><td class="sag">{{ t.kalan|para }}</td><td>%{{ t.yuzde }}</td>
+    <td class="orta">{{ t.tamam }}</td><td class="orta">{{ t.kismi }}</td><td class="orta">{{ t.yok }}</td><td class="orta">{{ t.muaf }}</td>
+  </tr>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "_makrolar.html" import rozet, cubuk %}
+{% block baslik %}{{ sinif.ad }} · {{ f.ad }}{% endblock %}
+{% block icerik %}
+<p class="yazdirma-yok" style="margin:0 0 6px"><a href="{{ url_for('faaliyet', fid=f.id) }}">← {{ f.ad }}</a></p>
+<div class="satir" style="justify-content: space-between">
+  <div>
+    <h1>{{ sinif.ad }} — {{ f.ad }}</h1>
+    <p class="alt">Öğrenci başı {{ f.ucret|para }}{% if sinif.ogretmen %} · Sınıf öğretmeni: {{ sinif.ogretmen }}{% endif %}</p>
+  </div>
+  <label class="yazdirma-yok" style="margin:0; font-weight:400">Sınıf değiştir:
+    <select onchange="location.href = this.value" style="width:auto">
+      {% for d in diger %}<option value="{{ url_for('tahsilat', fid=f.id, sid=d.sinif_id) }}" {{ 'selected' if d.sinif_id == sinif.id }}>{{ d.sinif }} (%{{ d.yuzde }})</option>{% endfor %}
+    </select>
+  </label>
+</div>
+
+{% if ozet %}
+<div class="ozet-kutular">
+  <div><span>Hedef</span><b>{{ ozet.hedef|para }}</b></div>
+  <div><span>Toplanan</span><b style="color:var(--yesil)">{{ ozet.toplanan|para }}</b></div>
+  <div><span>Kalan</span><b style="color:var(--kirmizi)">{{ ozet.kalan|para }}</b></div>
+  <div><span>Tahsilat %{{ ozet.yuzde }}</span><div style="margin-top:10px">{{ cubuk(ozet.yuzde) }}</div></div>
+  <div><span>Tamam / kısmi / ödemedi</span><b>{{ ozet.tamam }} / {{ ozet.kismi }} / {{ ozet.yok }}</b></div>
+</div>
+{% endif %}
+
+{% if not f.acik %}<div class="mesaj hata">Bu faaliyet kapatılmış; yeni ödeme girilemez.</div>{% endif %}
+
+<div class="satir yazdirma-yok" style="margin-bottom:10px">
+  <input type="text" id="ara" class="ara" placeholder="Öğrenci adı veya numarası ile ara…" style="max-width:320px">
+  <div class="filtre-btn" id="filtre">
+    <button type="button" class="secili" data-d="">Tümü</button>
+    <button type="button" data-d="Ödenmedi">Ödemeyenler</button>
+    <button type="button" data-d="Kısmi">Kısmi</button>
+    <button type="button" data-d="Tamamlandı">Tamamlayanlar</button>
+  </div>
+</div>
+
+<div class="tablo-kutu">
+<table id="liste">
+  <tr><th>No</th><th>Ad Soyad</th><th class="sag">Ücret</th><th class="sag">Ödenen</th><th class="sag">Kalan</th>
+      <th>Durum</th>{% if f.acik %}<th class="yazdirma-yok">Ödeme ekle (tutar · tarih)</th>{% endif %}<th class="yazdirma-yok"></th></tr>
+  {% for o in ogrenciler %}
+  <tr data-durum="{{ o.durum }}" data-ara="{{ (o.okul_no ~ ' ' ~ o.ad_soyad)|lower }}">
+    <td>{{ o.okul_no }}</td>
+    <td>{{ o.ad_soyad }}{% if not o.aktif %} <span class="ipucu">(ayrıldı)</span>{% endif %}
+        {% if o.tip == 'indirim' %}<span class="ipucu" title="{{ o.ayar_aciklama }}">(indirimli)</span>{% endif %}</td>
+    <td class="sag">{{ o.ucret|para }}</td>
+    <td class="sag">{{ o.odenen|para }}{% if o.odeme_adet > 1 %} <span class="ipucu">({{ o.odeme_adet }} ödeme)</span>{% endif %}</td>
+    <td class="sag">{{ o.kalan|para }}</td>
+    <td>{{ rozet(o.durum) }}</td>
+    {% if f.acik %}
+    <td class="yazdirma-yok">
+      {% if o.kalan > 0 %}
+      <form method="post" action="{{ url_for('odeme_ekle', fid=f.id) }}" class="odeme-form">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <input type="hidden" name="ogrenci_id" value="{{ o.id }}">
+        <input type="hidden" name="geri" value="{{ request.path }}">
+        <input type="text" name="tutar" inputmode="decimal" placeholder="Tutar" required>
+        <button type="button" class="btn kucuk ikincil" title="Kalan tutarın tamamı" onclick="this.form.tutar.value='{{ o.kalan|para(false) }}'">Tamamı</button>
+        <input type="date" name="tarih" value="{{ bugun }}" max="{{ bugun }}" required>
+        <button class="btn kucuk">Kaydet</button>
+      </form>
+      {% endif %}
+    </td>
+    {% endif %}
+    <td class="yazdirma-yok"><a href="{{ url_for('ogrenci_detay', fid=f.id, oid=o.id) }}">Detay</a></td>
+  </tr>
+  {% endfor %}
+  {% if not ogrenciler %}<tr><td colspan="8" class="bos">Bu sınıfta öğrenci yok.</td></tr>{% endif %}
+</table>
+</div>
+{% endblock %}
+{% block betik %}
+<script>
+(function () {
+  var ara = document.getElementById('ara'), durum = '';
+  function uygula() {
+    var q = ara.value.toLocaleLowerCase('tr');
+    document.querySelectorAll('#liste tr[data-durum]').forEach(function (tr) {
+      var ok = (!durum || tr.dataset.durum === durum) && tr.dataset.ara.indexOf(q) !== -1;
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  ara.addEventListener('input', uygula);
+  document.querySelectorAll('#filtre button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#filtre button').forEach(function (x) { x.classList.remove('secili'); });
+      b.classList.add('secili'); durum = b.dataset.d; uygula();
+    });
+  });
+})();
+</script>
+{% endblock %}

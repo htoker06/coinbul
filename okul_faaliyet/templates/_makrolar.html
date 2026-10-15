@@ -1,0 +1,8 @@
+{% macro rozet(durum) -%}
+{%- set sinif = {'Tamamlandı': 'r-tamam', 'Kısmi': 'r-kismi', 'Ödenmedi': 'r-yok', 'Muaf': 'r-muaf', 'Katılmıyor': 'r-katilmiyor'}[durum] -%}
+<span class="rozet {{ sinif }}">{{ durum }}</span>
+{%- endmacro %}
+
+{% macro cubuk(yuzde) -%}
+<div class="cubuk" title="%{{ yuzde }}"><span style="width: {{ [yuzde, 100]|min }}%"></span></div>
+{%- endmacro %}

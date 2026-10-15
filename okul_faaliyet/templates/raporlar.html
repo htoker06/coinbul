@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block baslik %}Raporlar{% endblock %}
+{% block icerik %}
+<h1>Raporlar</h1>
+<p class="alt">Faaliyeti ve rapor türünü seçin; tabloyu ekranda görün, Excel veya PDF olarak indirin.</p>
+
+{% if not faaliyetler %}
+<div class="kart bos">Henüz faaliyet yok.</div>
+{% else %}
+<form method="get" class="kart yazdirma-yok" id="rapor-form">
+  <div class="izgara2">
+    <div>
+      <label>Faaliyet</label>
+      <select name="faaliyet" onchange="this.form.bicim.value='html'; this.form.submit()">
+        {% for f in faaliyetler %}<option value="{{ f.id }}" {{ 'selected' if f.id == fid }}>{{ f.ad }}{{ ' (kapalı)' if not f.acik }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>Rapor türü</label>
+      <select name="tur" onchange="this.form.bicim.value='html'; this.form.submit()">
+        {% for k, ad in turler %}<option value="{{ k }}" {{ 'selected' if k == tur }}>{{ ad }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+  {% if siniflar|length > 1 %}
+  <label>Sınıflar <span class="ipucu">(hiçbiri seçilmezse tüm sınıflar)</span></label>
+  <div class="sinif-sec">
+    {% for s in siniflar %}<label><input type="checkbox" name="sinif" value="{{ s.id }}" {{ 'checked' if s.id in secili }}> {{ s.ad }}</label>{% endfor %}
+  </div>
+  {% endif %}
+  {% if tur == 'tahsilat' %}
+  <div class="izgara2">
+    <div><label>Başlangıç tarihi</label><input type="date" name="bas" value="{{ bas }}"></div>
+    <div><label>Bitiş tarihi</label><input type="date" name="bit" value="{{ bit }}"></div>
+  </div>
+  {% endif %}
+  <input type="hidden" name="bicim" value="html">
+  <p class="satir" style="margin-top:14px">
+    <button class="btn" onclick="this.form.bicim.value='html'">Raporu göster</button>
+    <button class="btn yesil" onclick="this.form.bicim.value='xlsx'">Excel indir</button>
+    <button class="btn tehlike" onclick="this.form.bicim.value='pdf'">PDF indir</button>
+    <button type="button" class="btn ikincil" onclick="window.print()">Yazdır</button>
+  </p>
+</form>
+
+{% if rapor %}
+<h2>{{ rapor.baslik }}</h2>
+<p class="alt">{% for b in rapor.bilgi %}{{ b }}{{ ' · ' if not loop.last }}{% endfor %}</p>
+<div class="tablo-kutu">
+<table>
+  <tr>{% for ad, tip in rapor.sutunlar %}<th class="{{ 'sag' if tip in ('para','yuzde') else ('orta' if tip in ('sayi','tarih')) }}">{{ ad }}</th>{% endfor %}</tr>
+  {% for satir in rapor.satirlar %}
+  <tr>{% for deger in satir %}{% set tip = rapor.sutunlar[loop.index0][1] %}<td class="{{ 'sag' if tip in ('para','yuzde') else ('orta' if tip in ('sayi','tarih')) }}">{{ hucre_metni(deger, tip) }}</td>{% endfor %}</tr>
+  {% endfor %}
+  {% if not rapor.satirlar %}<tr><td colspan="{{ rapor.sutunlar|length }}" class="bos">Bu rapora uyan kayıt yok.</td></tr>{% endif %}
+  {% if rapor.toplam %}
+  <tr class="toplam">{% for deger in rapor.toplam %}{% set tip = rapor.sutunlar[loop.index0][1] %}<td class="{{ 'sag' if tip in ('para','yuzde') else ('orta' if tip in ('sayi','tarih')) }}">{{ hucre_metni(deger, tip) }}</td>{% endfor %}</tr>
+  {% endif %}
+</table>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

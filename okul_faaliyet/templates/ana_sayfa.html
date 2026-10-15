@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_makrolar.html" import cubuk %}
+{% block baslik %}Faaliyetler{% endblock %}
+{% block icerik %}
+<div class="satir" style="justify-content: space-between; margin-bottom: 16px">
+  <div>
+    <h1>Faaliyetler</h1>
+    <p class="alt" style="margin:0">Faaliyete tıklayarak sınıf seçin ve öğrenci ödemelerini girin.</p>
+  </div>
+  {% if yonetici %}
+  <a class="btn buyuk" href="{{ url_for('faaliyet_yeni') }}">+ Faaliyet Oluştur</a>
+  {% endif %}
+</div>
+
+{% if yonetici and sinif_sayisi == 0 %}
+<div class="kart">
+  <b>Önce sınıf ve öğrenci listesini yükleyin.</b>
+  <p>Faaliyet oluşturabilmek için sınıfların tanımlı olması gerekir.
+     <a href="{{ url_for('ice_aktar_sayfa') }}">Excel'den içe aktar</a> veya
+     <a href="{{ url_for('siniflar') }}">sınıfları elle ekle</a>.</p>
+</div>
+{% endif %}
+
+{% if not faaliyetler %}
+<div class="kart bos">Henüz faaliyet yok.{% if yonetici %} “Faaliyet Oluştur” ile ilk faaliyeti ekleyin.{% endif %}</div>
+{% endif %}
+
+<div class="izgara" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr))">
+{% for x in faaliyetler %}
+  <a class="kart faaliyet-kart" href="{{ url_for('faaliyet', fid=x.f.id) }}">
+    <div class="satir" style="justify-content: space-between">
+      <h3>{{ x.f.ad }}</h3>
+      {% if not x.f.acik %}<span class="rozet r-kapali">Kapalı</span>{% endif %}
+    </div>
+    <div class="alt" style="margin-bottom:8px">
+      Öğrenci başı {{ x.f.ucret|para }} · {{ x.sinif_sayisi }} sınıf
+      {% if x.f.son_tarih %} · Son ödeme {{ x.f.son_tarih|tarih }}{% endif %}
+    </div>
+    {{ cubuk(x.t.yuzde) }}
+    <div class="satir" style="justify-content: space-between; margin-top:6px; font-size:14px">
+      <span><b>{{ x.t.toplanan|para }}</b> / {{ x.t.hedef|para }}</span>
+      <span>%{{ x.t.yuzde }}</span>
+    </div>
+    <div class="alt" style="margin:4px 0 0; font-size:13px">
+      {{ x.t.tamam }} tamamladı · {{ x.t.kismi }} kısmi · {{ x.t.yok }} ödemedi · Kalan {{ x.t.kalan|para }}
+    </div>
+  </a>
+{% endfor %}
+</div>
+{% endblock %}

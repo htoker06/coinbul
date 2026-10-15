@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block baslik %}İlk kurulum{% endblock %}
+{% block icerik %}
+<div class="giris-kutu kart">
+  <h1>İlk kurulum</h1>
+  <p class="alt">Programı ilk kez açıyorsunuz. Okul bilgilerini ve yönetici (müdür) hesabını oluşturun.</p>
+  <form method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Okulun adı</label>
+    <input type="text" name="okul_adi" required placeholder="ör. Atatürk Anadolu Lisesi" value="{{ request.form.okul_adi }}">
+    <label>Adınız soyadınız</label>
+    <input type="text" name="ad" required placeholder="PDF raporlarda “Onaylayan” olarak yazılır" value="{{ request.form.ad }}">
+    <label>Kullanıcı adı</label>
+    <input type="text" name="kullanici_adi" required value="{{ request.form.kullanici_adi or 'mudur' }}">
+    <label>Şifre (en az 6 karakter)</label>
+    <input type="password" name="sifre" required minlength="6">
+    <label>Şifre (tekrar)</label>
+    <input type="password" name="sifre2" required minlength="6">
+    <p><button class="btn">Kurulumu tamamla</button></p>
+  </form>
+</div>
+{% endblock %}
