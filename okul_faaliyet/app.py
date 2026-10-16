@@ -603,13 +603,13 @@ def _rotalar(app):
     def ice_aktar_sayfa():
         if request.method == "POST":
             dosya = request.files.get("dosya")
-            if not dosya or not dosya.filename.lower().endswith((".xlsx", ".xlsm")):
-                flash("Lütfen .xlsx uzantılı bir Excel dosyası seçin.", "hata")
+            if not dosya or not dosya.filename.lower().endswith((".xlsx", ".xlsm", ".xls")):
+                flash("Lütfen bir Excel dosyası (.xls veya .xlsx) seçin.", "hata")
                 return redirect(url_for("ice_aktar_sayfa"))
             try:
                 kayitlar = ice_aktar.excel_oku(dosya.read())
             except Exception:
-                flash("Dosya okunamadı. Excel (.xlsx) dosyası olduğundan emin olun.", "hata")
+                flash("Dosya okunamadı. Excel (.xls veya .xlsx) dosyası olduğundan emin olun.", "hata")
                 return redirect(url_for("ice_aktar_sayfa"))
             if not kayitlar:
                 flash("Dosyada öğrenci bulunamadı. Başlık satırında “Ad Soyad” (veya “Adı” ve "

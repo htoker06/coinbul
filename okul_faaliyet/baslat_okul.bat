@@ -15,11 +15,11 @@ if errorlevel 1 set "PY=py"
 where %PY% >nul 2>nul
 if errorlevel 1 goto python_yok
 if not exist "veri" mkdir "veri"
-if exist "veri\.kurulum_tamam" goto kurulum_tamam
+if exist "veri\.kurulum_v2" goto kurulum_tamam
 echo Gerekli paketler kuruluyor (ilk acilista bir kez)...
 %PY% -m pip install -q -r requirements.txt
 if errorlevel 1 goto pip_hata
-echo ok>"veri\.kurulum_tamam"
+echo ok>"veri\.kurulum_v2"
 :kurulum_tamam
 title Okul Faaliyet Takip Programi
 %PY% app.py

@@ -40,10 +40,8 @@ def excel_oku(icerik):
 
     Sınıf sütunu yoksa sayfa adı sınıf adı kabul edilir (her sınıf ayrı sayfa).
     """
-    wb = load_workbook(io.BytesIO(icerik), read_only=True, data_only=True)
     kayitlar = []
-    for ws in wb.worksheets:
-        satirlar = list(ws.iter_rows(values_only=True))
+    for sayfa_adi, satirlar in _sayfalar(icerik):
         baslik_idx, yer = None, {}
         for i, satir in enumerate(satirlar[:15]):
             y = _sutun_bul(satir)
@@ -62,12 +60,22 @@ def excel_oku(icerik):
                 ad = f"{al('ad')} {al('soyad')}".strip()
             if not ad:
                 continue
-            sinif = al("sinif") if "sinif" in yer else ws.title.strip()
+            sinif = al("sinif") if "sinif" in yer else sayfa_adi.strip()
             no = al("no")
             if no.endswith(".0"):
                 no = no[:-2]
             kayitlar.append((sinif_adi_duzelt(sinif), no, ad, al("tel")))
     return kayitlar
+
+
+def _sayfalar(icerik):
+    """[(sayfa adı, satırlar)]; hem .xlsx hem e-Okul'un verdiği eski .xls biçimini okur."""
+    if icerik[:4] == b"\xd0\xcf\x11\xe0":  # eski Excel 97-2003 (.xls)
+        import xlrd
+        wb = xlrd.open_workbook(file_contents=icerik)
+        return [(sh.name, [sh.row_values(r) for r in range(sh.nrows)]) for sh in wb.sheets()]
+    wb = load_workbook(io.BytesIO(icerik), read_only=True, data_only=True)
+    return [(ws.title, list(ws.iter_rows(values_only=True))) for ws in wb.worksheets]
 
 
 def metin_oku(metin):
